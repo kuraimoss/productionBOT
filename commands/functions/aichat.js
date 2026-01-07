@@ -1,4 +1,5 @@
 const fs = require("fs");
+const path = require("path");
 const { getClient, registerContext, unregisterContext } = require("../../lib/mcp");
 
 function getTextFromMcpResult(result) {
@@ -67,6 +68,617 @@ function isInternalSystemQuestion(text) {
     if (!text) return false;
     const t = String(text).trim().toLowerCase();
     return /\b(mcp|model\s+context\s+protocol|system\s+context|system_flags|flag\s+role|role\s+berbasis\s+flag|keamanan|bypass|permission\s+gate|akses\s+owner|akses\s+admin|logic\s+role|struktur\s+role|cara\s+kerja\s+bot)\b/.test(t);
+}
+
+const COMMANDS_ROOT = path.resolve(__dirname, "..");
+
+const STOPWORDS_ARGS = new Set([
+    "tolong",
+    "please",
+    "pls",
+    "minta",
+    "coba",
+    "bisa",
+    "boleh",
+    "dong",
+    "ya",
+    "nih",
+    "ini",
+    "itu",
+    "yang",
+    "untuk",
+    "buat",
+    "bikin",
+    "buatkan",
+    "bikinkan",
+    "jalankan",
+    "run",
+    "execute",
+    "eksekusi",
+    "cek",
+    "check",
+    "periksa",
+    "cari",
+    "search",
+    "lookup",
+    "stalk",
+    "stalking",
+    "username",
+    "user",
+    "github",
+    "alamat",
+    "address",
+    "ip",
+    "download",
+    "dl",
+    "ambil",
+    "get",
+    "tolonglah",
+]);
+
+const STOPWORDS_SCORE = new Set([
+    "tolong",
+    "please",
+    "pls",
+    "minta",
+    "coba",
+    "bisa",
+    "boleh",
+    "dong",
+    "ya",
+    "nih",
+    "ini",
+    "itu",
+    "yang",
+    "untuk",
+    "tolonglah",
+]);
+
+const ACTION_WORDS = new Set([
+    "buat",
+    "bikin",
+    "jalankan",
+    "run",
+    "execute",
+    "eksekusi",
+    "cek",
+    "check",
+    "periksa",
+    "cari",
+    "search",
+    "lookup",
+    "stalk",
+    "download",
+    "dl",
+    "ambil",
+    "get",
+]);
+
+const CATEGORY_KEYWORDS = [
+    {
+        category: "group",
+        keywords: [
+            "group",
+            "grup",
+            "gc",
+            "kick",
+            "ban",
+            "promote",
+            "demote",
+            "mute",
+            "unmute",
+            "tagall",
+            "hidetag",
+            "link",
+            "revoke",
+            "setname",
+            "setsubject",
+            "setdesc",
+            "seticon",
+            "opengc",
+            "closegc",
+            "open",
+            "close",
+            "antilink",
+            "antibot",
+            "antispam",
+            "listonline",
+        ],
+    },
+    {
+        category: "media",
+        keywords: [
+            "sticker",
+            "stiker",
+            "image",
+            "gambar",
+            "video",
+            "audio",
+            "voice",
+            "music",
+            "lagu",
+            "tiktok",
+            "yt",
+            "youtube",
+            "ig",
+            "instagram",
+            "fb",
+            "facebook",
+            "gif",
+        ],
+    },
+    {
+        category: "search",
+        keywords: [
+            "search",
+            "cari",
+            "find",
+            "lookup",
+            "whois",
+            "ip",
+            "domain",
+            "dns",
+            "cek",
+            "github",
+            "username",
+        ],
+    },
+    {
+        category: "stalking",
+        keywords: ["stalk", "stalking", "igstory", "githubstalk"],
+    },
+    {
+        category: "tools",
+        keywords: [
+            "tool",
+            "convert",
+            "toimg",
+            "tovideo",
+            "toaudio",
+            "qr",
+            "translate",
+            "trans",
+            "calc",
+            "count",
+            "short",
+            "url",
+            "encode",
+            "decode",
+        ],
+    },
+    {
+        category: "information",
+        keywords: ["info", "about", "help", "menu", "fitur", "feature", "status", "ping", "uptime"],
+    },
+    {
+        category: "owner",
+        keywords: ["owner", "eval", "exec", "shell", "terminal", "reboot", "restart", "shutdown", "deploy", "update"],
+    },
+    {
+        category: "virbug",
+        keywords: ["bug", "virbug", "crash", "spam", "flood"],
+    },
+];
+
+const OWNER_KEYWORDS = [
+    "owner",
+    "eval",
+    "exec",
+    "shell",
+    "terminal",
+    "reboot",
+    "restart",
+    "shutdown",
+    "deploy",
+    "update",
+    "config",
+    "token",
+    "apikey",
+    "api key",
+    "write",
+    "create",
+    "delete",
+    "hapus",
+];
+
+const ADMIN_KEYWORDS = [
+    "kick",
+    "ban",
+    "mute",
+    "unmute",
+    "promote",
+    "demote",
+    "tagall",
+    "hidetag",
+    "setname",
+    "setsubject",
+    "setdesc",
+    "seticon",
+    "revoke",
+    "opengc",
+    "closegc",
+    "banchat",
+    "unbanchat",
+    "antilink",
+    "antibot",
+    "antispam",
+];
+
+const BOTADMIN_KEYWORDS = [
+    "kick",
+    "ban",
+    "promote",
+    "demote",
+    "seticon",
+    "setpp",
+    "revoke",
+    "link",
+    "open",
+    "close",
+    "add",
+    "remove",
+];
+
+function normalizeText(text) {
+    return String(text || "")
+        .toLowerCase()
+        .replace(/[\r\n\t]+/g, " ")
+        .replace(/[^a-z0-9 _.-]/g, " ")
+        .replace(/\s+/g, " ")
+        .trim();
+}
+
+function tokenize(text) {
+    const t = normalizeText(text);
+    if (!t) return [];
+    return t
+        .split(/\s+/)
+        .map((s) => s.trim())
+        .filter(Boolean)
+        .filter((s) => !STOPWORDS_SCORE.has(s));
+}
+
+function scoreCommand(queryTokens, commandName) {
+    const name = String(commandName || "").toLowerCase();
+    let score = 0;
+    for (const t of queryTokens) {
+        if (!t) continue;
+        if (name === t) score += 6;
+        else if (name.includes(t) || t.includes(name)) score += 3;
+        else if (name.replace(/[_-]/g, "").includes(t.replace(/[_-]/g, ""))) score += 2;
+    }
+    return score;
+}
+
+function pickBestMatch(text, items) {
+    const normalized = normalizeText(text).replace(/^[.#/]/, "");
+    const queryTokens = tokenize(normalized);
+    if (queryTokens.length === 0) return null;
+
+    for (const item of items) {
+        const names = Array.isArray(item.names) ? item.names : [];
+        for (const n of names) {
+            const name = String(n || "").toLowerCase();
+            if (!name) continue;
+            if (normalized.includes(name)) return { item, name };
+        }
+    }
+
+    let best = null;
+    let bestScore = 0;
+    for (const item of items) {
+        const names = Array.isArray(item.names) ? item.names : [];
+        for (const n of names) {
+            const s = scoreCommand(queryTokens, n);
+            if (s > bestScore) {
+                bestScore = s;
+                best = { item, name: String(n || "").toLowerCase(), score: s };
+            }
+        }
+    }
+    if (!best || bestScore < 3) return null;
+    return best;
+}
+
+function extractArgs(text, chosenName) {
+    const normalized = normalizeText(text).replace(/^[.#/]/, "");
+    let rest = normalized;
+    const name = String(chosenName || "").toLowerCase();
+    if (rest.startsWith(name + " ")) rest = rest.slice(name.length).trim();
+    else rest = rest.replace(new RegExp(`\\b${name.replace(/[.*+?^${}()|[\\]\\\\]/g, "\\$&")}\\b`, "i"), "").trim();
+
+    const ipMatch = rest.match(/\b(?:\d{1,3}\.){3}\d{1,3}\b/);
+    if (ipMatch) return [ipMatch[0]];
+    const urlMatch = rest.match(/\bhttps?:\/\/\S+\b/i);
+    if (urlMatch) return [urlMatch[0]];
+
+    const tokens = rest
+        .split(/\s+/)
+        .filter(Boolean)
+        .filter((t) => !STOPWORDS_ARGS.has(t));
+    while (
+        tokens.length &&
+        (ACTION_WORDS.has(tokens[0]) || tokens[0] === "tolong" || tokens[0] === "please" || tokens[0] === "pls")
+    ) {
+        tokens.shift();
+    }
+    return tokens;
+}
+
+function scanCommandFiles() {
+    const results = [];
+    let folders = [];
+    try {
+        folders = fs.readdirSync(COMMANDS_ROOT, { withFileTypes: true }).filter((d) => d.isDirectory());
+    } catch {
+        return results;
+    }
+    for (const dir of folders) {
+        const folder = dir.name;
+        if (!folder || folder.startsWith(".")) continue;
+        const folderPath = path.join(COMMANDS_ROOT, folder);
+        let files = [];
+        try {
+            files = fs.readdirSync(folderPath, { withFileTypes: true });
+        } catch {
+            continue;
+        }
+        for (const file of files) {
+            if (!file.isFile() || !file.name.endsWith(".js")) continue;
+            const base = file.name.replace(/\.js$/i, "");
+            if (!base) continue;
+            results.push({
+                name: base.toLowerCase(),
+                category: folder,
+                filePath: path.join("commands", folder, file.name).replace(/\\/g, "/"),
+            });
+        }
+    }
+    return results;
+}
+
+function findLoadedCommand(name) {
+    const commands = global.attr?.commands ? Object.values(global.attr.commands) : [];
+    const needle = String(name || "").toLowerCase();
+    for (const cmd of commands) {
+        const names = Array.isArray(cmd.cmd)
+            ? cmd.cmd
+            : Array.isArray(cmd.name)
+            ? cmd.name
+            : cmd.name
+            ? [cmd.name]
+            : [];
+        const normalized = names
+            .filter(Boolean)
+            .map((n) => String(n).replace(/^[.#/]/, "").toLowerCase())
+            .filter(Boolean);
+        if (normalized.includes(needle)) return cmd;
+    }
+    return null;
+}
+
+function pickCategory(text) {
+    const t = normalizeText(text);
+    let best = { category: "other", score: 0 };
+    for (const entry of CATEGORY_KEYWORDS) {
+        let score = 0;
+        for (const kw of entry.keywords) {
+            if (t.includes(kw)) score += 1;
+        }
+        if (score > best.score) best = { category: entry.category, score };
+    }
+    return best.category;
+}
+
+function inferPermissions(text, category) {
+    const t = normalizeText(text);
+    const owner = OWNER_KEYWORDS.some((k) => t.includes(k));
+    let admin = ADMIN_KEYWORDS.some((k) => t.includes(k));
+    let botadmin = BOTADMIN_KEYWORDS.some((k) => t.includes(k));
+    if (owner) {
+        admin = false;
+        botadmin = false;
+    }
+    const group = category === "group" || admin || botadmin;
+    return { owner, admin, botadmin, group };
+}
+
+function sanitizeCommandName(name) {
+    const safe = String(name || "")
+        .toLowerCase()
+        .replace(/[^a-z0-9_-]/g, "");
+    return safe || "cmd";
+}
+
+function deriveCommandName(text) {
+    const normalized = normalizeText(text).replace(/^[.#/]/, "");
+    const tokens = normalized.split(/\s+/).filter(Boolean);
+    const filtered = tokens.filter((t) => !STOPWORDS_ARGS.has(t));
+    return sanitizeCommandName(filtered[0] || tokens[0] || "cmd");
+}
+
+function buildStubCommand(name, category, perms) {
+    const lines = [
+        "module.exports = {",
+        `  name: "${name}",`,
+        `  cmd: ["${name}"],`,
+        `  category: "${category}",`,
+        '  desc: "Auto-generated command",',
+    ];
+    if (perms.owner) lines.push("  owner: true,");
+    if (perms.admin) lines.push("  admin: true,");
+    if (perms.botadmin) lines.push("  botadmin: true,");
+    if (perms.group) lines.push("  group: true,");
+    lines.push("  async handler(m, { text }) {");
+    lines.push("    const payload = String(text || \"\").trim();");
+    lines.push("    if (payload) return m.reply(\"OK: \" + payload);");
+    lines.push("    return m.reply(\"OK\");");
+    lines.push("  },");
+    lines.push("};");
+    lines.push("");
+    return lines.join("\n");
+}
+
+function ensureCommandFile(filePath, content) {
+    const rel = String(filePath || "").replace(/^[./\\]+/, "");
+    if (!rel) throw new Error("filePath tidak valid.");
+    const root = path.resolve(process.cwd(), "commands");
+    const abs = path.resolve(process.cwd(), rel);
+    if (!(abs === root || abs.startsWith(root + path.sep))) {
+        throw new Error("Akses ditolak.");
+    }
+    fs.mkdirSync(path.dirname(abs), { recursive: true });
+    if (!fs.existsSync(abs)) {
+        fs.writeFileSync(abs, String(content ?? ""), "utf8");
+        return true;
+    }
+    return false;
+}
+
+function reloadCommandFile(filePath) {
+    if (typeof global.reload !== "function") return { ok: false, error: "Reload tidak tersedia di runtime." };
+    const rel = String(filePath || "").replace(/^[./\\]+/, "");
+    if (!rel) return { ok: false, error: "filePath tidak valid." };
+    try {
+        global.reload(rel);
+        return { ok: true };
+    } catch (e) {
+        return { ok: false, error: e?.message || String(e) };
+    }
+}
+
+async function runMcpExecutor(text, { m, conn }) {
+    const flags = {
+        isOwner: !!m.attribute?.isOwner,
+        isAdmin: !!m.attribute?.isAdmin,
+        isBotAdmin: !!m.attribute?.isBotAdmin,
+    };
+    const contextId = registerContext({ flags, conn, m });
+    try {
+        const client = await getClient();
+
+        const listRes = await client.callTool({ name: "listCommands", arguments: { contextId } });
+
+        let commands = [];
+        if (!listRes.isError) {
+            try {
+                const raw = getTextFromMcpResult(listRes);
+                const parsed = JSON.parse(raw || "[]");
+                if (Array.isArray(parsed)) commands = parsed;
+            } catch {
+                commands = [];
+            }
+        }
+
+        const cmdMatch = pickBestMatch(text, commands);
+        let chosen = cmdMatch;
+        let chosenSource = "command";
+
+        if (!chosen) {
+            const files = scanCommandFiles().map((f) => ({
+                names: [f.name],
+                category: f.category,
+                filePath: f.filePath,
+            }));
+            const fileMatch = pickBestMatch(text, files);
+            if (fileMatch) {
+                chosen = fileMatch;
+                chosenSource = "file";
+            }
+        }
+
+        if (chosen) {
+            const chosenName = chosen.name;
+            if (chosenSource === "file" && chosen.item?.filePath) {
+                const reload = reloadCommandFile(chosen.item.filePath);
+                if (!reload.ok) {
+                    m.reply(reload.error || "Gagal reload command.");
+                    return true;
+                }
+                const refreshRes = await client.callTool({ name: "listCommands", arguments: { contextId } });
+                if (!refreshRes.isError) {
+                    try {
+                        const raw = getTextFromMcpResult(refreshRes);
+                        const parsed = JSON.parse(raw || "[]");
+                        if (Array.isArray(parsed)) commands = parsed;
+                    } catch {
+                        // ignore
+                    }
+                }
+            }
+
+            const loaded = findLoadedCommand(chosenName);
+            const commandInfo = Array.isArray(commands)
+                ? commands.find((c) => Array.isArray(c.names) && c.names.map(String).includes(chosenName))
+                : null;
+            const meta = loaded || commandInfo || {};
+
+            if (meta.group && !m.isGroup) {
+                m.reply(global.response?.group || "Perintah ini hanya dapat dilakukan didalam grup!");
+                return true;
+            }
+            if (meta.private && m.isGroup) {
+                m.reply(global.response?.private || "Perintah ini hanya dapat dilakukan didalam Private Chat");
+                return true;
+            }
+            if (meta.owner && !flags.isOwner) {
+                m.reply("Akses ditolak. Perintah ini khusus owner.");
+                return true;
+            }
+            if (meta.admin && !flags.isAdmin && !flags.isOwner) {
+                m.reply("Akses ditolak. Perintah ini khusus admin.");
+                return true;
+            }
+            if (meta.botadmin && !flags.isBotAdmin && !flags.isOwner) {
+                m.reply("Akses ditolak. Bot tidak memiliki izin admin.");
+                return true;
+            }
+
+            const argv = extractArgs(text, chosenName);
+            const execRes = await client.callTool({
+                name: "executeCommand",
+                arguments: { contextId, command: chosenName, argv },
+            });
+            if (execRes.isError) {
+                m.reply(getTextFromMcpResult(execRes) || "Gagal eksekusi command.");
+            }
+            return true;
+        }
+
+        const category = pickCategory(text);
+        const name = deriveCommandName(text);
+        const perms = inferPermissions(text, category);
+        const filePath = path.join("commands", category, `${name}.js`).replace(/\\/g, "/");
+        const code = buildStubCommand(name, category, perms);
+
+        try {
+            ensureCommandFile(filePath, code);
+        } catch (e) {
+            m.reply(e?.message || "Gagal membuat command baru.");
+            return true;
+        }
+
+        const reload = reloadCommandFile(filePath);
+        if (!reload.ok) {
+            m.reply(reload.error || "Gagal reload command.");
+            return true;
+        }
+
+        const argv = extractArgs(text, name);
+        const execRes = await client.callTool({
+            name: "executeCommand",
+            arguments: { contextId, command: name, argv },
+        });
+        if (execRes.isError) {
+            m.reply(getTextFromMcpResult(execRes) || "Gagal eksekusi command baru.");
+        }
+        return true;
+    } catch (e) {
+        m.reply(`MCP error: ${e?.message || String(e)}`);
+        return true;
+    } finally {
+        unregisterContext(contextId);
+    }
 }
 
 function extractHttpErrorInfo(error) {
@@ -140,6 +752,8 @@ module.exports = {
             }
             
             if (isiPesan.length != 0) {
+                const handled = await runMcpExecutor(isiPesan, { m, conn });
+                if (handled) return;
                 let isAi = false
                 let msgId = false
 
