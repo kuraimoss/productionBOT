@@ -16,6 +16,23 @@ function parseMcpCommand(text) {
     return { verb, parts, remainder };
 }
 
+function parseSendFileIntent(text) {
+    const t = String(text || "").trim();
+    const m = t.match(/^(?:kirim|send)\s+file\s+(.+)$/i);
+    if (!m) return null;
+    return String(m[1] || "").trim();
+}
+
+function isListFeaturesIntent(text) {
+    const t = String(text || "").trim().toLowerCase();
+    return /\b(apa aja fitur bot ini|fitur bot ini apa|fitur apa aja|menu bot|daftar fitur)\b/.test(t);
+}
+
+function isOutGroupIntent(text) {
+    const t = String(text || "").trim().toLowerCase();
+    return /\b(out\s*group|keluar\s+dari\s+gr(up|up)|leave\s+group)\b/.test(t);
+}
+
 function isGreeting(text) {
     if (!text) return false;
     const t = String(text).trim().toLowerCase();
@@ -134,6 +151,7 @@ module.exports = {
                 if (isAi) {
                     const mcpCmd = parseMcpCommand(isiPesan);
                     if (mcpCmd) {
+                        if (!m.attribute?.isOwner) return m.reply("Akses ditolak. Perintah ini khusus owner.");
                         const flags = {
                             isOwner: !!m.attribute?.isOwner,
                             isAdmin: !!m.attribute?.isAdmin,
@@ -148,9 +166,13 @@ module.exports = {
                                     "MCP commands:\n" +
                                         "- mcp ls <dir>\n" +
                                         "- mcp cat <file>\n" +
+                                        "- mcp cmds\n" +
                                         "- mcp exec <command> [args...]\n" +
                                         "- mcp mkcmd <name>\\n<code>\n" +
-                                        "- mcp write <file>\\n<content>"
+                                        "- mcp write <file>\\n<content>\n" +
+                                        "- mcp create <file>\\n<content>\n" +
+                                        "- mcp del <file>\n" +
+                                        "- mcp reload <file>"
                                 );
                             }
 
@@ -177,6 +199,16 @@ module.exports = {
                                 return m.reply(text.length > 1500 ? text.slice(0, 1500) + "\n...(truncated)" : text);
                             }
 
+                            if (mcpCmd.verb === "cmds") {
+                                const res = await client.callTool({
+                                    name: "listCommands",
+                                    arguments: { contextId },
+                                });
+                                if (res.isError) return m.reply(getTextFromMcpResult(res) || "Error.");
+                                const text = getTextFromMcpResult(res);
+                                return m.reply(text.length > 1500 ? text.slice(0, 1500) + "\n...(truncated)" : text);
+                            }
+
                             if (mcpCmd.verb === "write") {
                                 const [firstLine, ...restLines] = mcpCmd.remainder.split("\n");
                                 const filePath = String(firstLine || "").trim().split(/\s+/)[0];
@@ -185,6 +217,41 @@ module.exports = {
                                 const res = await client.callTool({
                                     name: "writeFile",
                                     arguments: { contextId, filePath, content: body },
+                                });
+                                if (res.isError) return m.reply(getTextFromMcpResult(res) || "Error.");
+                                return m.reply("OK");
+                            }
+
+                            if (mcpCmd.verb === "create") {
+                                const [firstLine, ...restLines] = mcpCmd.remainder.split("\n");
+                                const filePath = String(firstLine || "").trim().split(/\s+/)[0];
+                                const body = restLines.join("\n");
+                                if (!filePath) return m.reply("Format: mcp create <file>\\n<content>");
+                                const res = await client.callTool({
+                                    name: "createFile",
+                                    arguments: { contextId, filePath, content: body || "" },
+                                });
+                                if (res.isError) return m.reply(getTextFromMcpResult(res) || "Error.");
+                                return m.reply("OK");
+                            }
+
+                            if (mcpCmd.verb === "del") {
+                                const filePath = mcpCmd.parts[0];
+                                if (!filePath) return m.reply("Format: mcp del <file>");
+                                const res = await client.callTool({
+                                    name: "deleteFile",
+                                    arguments: { contextId, filePath },
+                                });
+                                if (res.isError) return m.reply(getTextFromMcpResult(res) || "Error.");
+                                return m.reply("OK");
+                            }
+
+                            if (mcpCmd.verb === "reload") {
+                                const filePath = mcpCmd.parts[0];
+                                if (!filePath) return m.reply("Format: mcp reload <file>");
+                                const res = await client.callTool({
+                                    name: "reloadCommand",
+                                    arguments: { contextId, filePath },
                                 });
                                 if (res.isError) return m.reply(getTextFromMcpResult(res) || "Error.");
                                 return m.reply("OK");
@@ -218,6 +285,118 @@ module.exports = {
                             return m.reply("Unknown MCP command. Ketik: mcp help");
                         } catch (e) {
                             return m.reply(`MCP error: ${e?.message || String(e)}`);
+                        } finally {
+                            unregisterContext(contextId);
+                        }
+                    }
+
+                    // Required natural-language MCP cases (owner-gated where dangerous)
+                    const sendFilePath = parseSendFileIntent(isiPesan);
+                    if (sendFilePath) {
+                        if (!m.attribute?.isOwner) return m.reply("Akses ditolak. Perintah ini khusus owner.");
+                        const flags = {
+                            isOwner: !!m.attribute?.isOwner,
+                            isAdmin: !!m.attribute?.isAdmin,
+                            isBotAdmin: !!m.attribute?.isBotAdmin,
+                        };
+                        const contextId = registerContext({ flags, conn, m });
+                        try {
+                            const client = await getClient();
+                            const res = await client.callTool({
+                                name: "readFile",
+                                arguments: { contextId, filePath: sendFilePath },
+                            });
+                            if (res.isError) return m.reply("Akses ditolak atau file tidak bisa dibaca.");
+                            const text = getTextFromMcpResult(res);
+                            return m.reply(text.length > 1500 ? text.slice(0, 1500) + "\n...(truncated)" : text);
+                        } finally {
+                            unregisterContext(contextId);
+                        }
+                    }
+
+                    if (isListFeaturesIntent(isiPesan)) {
+                        const flags = {
+                            isOwner: !!m.attribute?.isOwner,
+                            isAdmin: !!m.attribute?.isAdmin,
+                            isBotAdmin: !!m.attribute?.isBotAdmin,
+                        };
+                        const contextId = registerContext({ flags, conn, m });
+                        try {
+                            const client = await getClient();
+                            const res = await client.callTool({ name: "listCommands", arguments: { contextId } });
+                            if (res.isError) return m.reply("Maaf, aku gagal ambil daftar fitur.");
+                            const raw = getTextFromMcpResult(res);
+                            const list = JSON.parse(raw || "[]");
+                            const names = Array.isArray(list)
+                                ? list
+                                      .flatMap((c) => (Array.isArray(c.names) ? c.names : []))
+                                      .filter(Boolean)
+                                      .map((s) => "." + String(s))
+                                : [];
+                            const uniq = [...new Set(names)].sort();
+                            const preview = uniq.slice(0, 60).join("\n");
+                            return m.reply(
+                                `Fitur tersedia (${uniq.length}):\n` +
+                                    (preview || "-") +
+                                    (uniq.length > 60 ? "\n...(lebih banyak, ketik .menu)" : "")
+                            );
+                        } catch {
+                            return m.reply("Maaf, aku gagal ambil daftar fitur.");
+                        } finally {
+                            unregisterContext(contextId);
+                        }
+                    }
+
+                    if (isOutGroupIntent(isiPesan)) {
+                        if (!m.attribute?.isOwner) return m.reply("Akses ditolak. Perintah ini khusus owner.");
+                        const flags = {
+                            isOwner: !!m.attribute?.isOwner,
+                            isAdmin: !!m.attribute?.isAdmin,
+                            isBotAdmin: !!m.attribute?.isBotAdmin,
+                        };
+                        const contextId = registerContext({ flags, conn, m });
+                        try {
+                            const client = await getClient();
+                            const resCmds = await client.callTool({ name: "listCommands", arguments: { contextId } });
+                            const raw = !resCmds.isError ? getTextFromMcpResult(resCmds) : "[]";
+                            let exists = false;
+                            try {
+                                const list = JSON.parse(raw || "[]");
+                                exists =
+                                    Array.isArray(list) &&
+                                    list.some((c) => Array.isArray(c.names) && c.names.map(String).includes("outgroup"));
+                            } catch {
+                                exists = false;
+                            }
+
+                            if (!exists) {
+                                const code =
+                                    'module.exports = {\\n' +
+                                    '  name: \"outgroup\",\\n' +
+                                    '  category: \"owner\",\\n' +
+                                    '  owner: true,\\n' +
+                                    '  async handler(m, { conn }) {\\n' +
+                                    '    if (!m.isGroup) return m.reply(\"Perintah ini khusus grup.\");\\n' +
+                                    '    await conn.groupLeave(m.from);\\n' +
+                                    '  },\\n' +
+                                    '};\\n';
+                                const created = await client.callTool({
+                                    name: "createCommand",
+                                    arguments: { contextId, name: "outgroup", code },
+                                });
+                                if (created.isError) return m.reply("Gagal buat command outgroup.");
+                                await client.callTool({
+                                    name: "reloadCommand",
+                                    arguments: { contextId, filePath: "commands/custom/outgroup.js" },
+                                });
+                            }
+
+                            const exec = await client.callTool({
+                                name: "executeCommand",
+                                arguments: { contextId, command: "outgroup", argv: [] },
+                            });
+                            if (exec.isError) return m.reply(getTextFromMcpResult(exec) || "Gagal eksekusi outgroup.");
+                            return m.reply("OK");
                         } finally {
                             unregisterContext(contextId);
                         }
