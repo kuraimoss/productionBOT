@@ -5,7 +5,6 @@ cmd: ["mediafire"],
 category: "media",
 query: true,
 url: true,
-limit: true,
 async handler(m, { conn, q, command, args }) {
 await m.reply(response.wait)
 let result = await scraper.media.mediafire(q)

@@ -4,7 +4,6 @@ name: "hd",
 param: "<reply/send image>",
 cmd: ["hd","sharp","tohd"],
 category: "tools",
-limit: 1,
 async handler(m, { conn, args, isQImage, isImage }) {
 if (isQImage || isImage) {
 await m.reply(response.wait)

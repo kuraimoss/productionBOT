@@ -1,5 +1,5 @@
 const moment = require('moment-timezone')
-const { generateWAMessageFromContent, proto, prepareWAMessageMedia } = require("@zackmans/baileys")
+const { generateWAMessageFromContent, proto, prepareWAMessageMedia } = require(packages.baileys)
 module.exports = {
 name: 'listgroup',
 cmd: ['listgroup'],
@@ -20,7 +20,7 @@ header: proto.Message.InteractiveMessage.Header.fromObject({
 title: i.subject,
 hasMediaAttachment: true,
 ...(await prepareWAMessageMedia({ image: { url: await conn.profilePictureUrl(i.id, "image").catch(() => {
-return "https://zackmans.github.io/media/pp.jpg"
+return (assets.defaultProfilePictureUrl || assets.defaultProfilePicture)
 }) } }, { upload: conn.waUploadToServer }))
 }),
 nativeFlowMessage: proto.Message.InteractiveMessage.NativeFlowMessage.fromObject({

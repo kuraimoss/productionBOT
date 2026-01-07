@@ -1,4 +1,4 @@
-const { generateWAMessageFromContent, proto } = require("@zackmans/baileys")
+const { generateWAMessageFromContent, proto } = require(packages.baileys)
 
 module.exports = {
 name: 'bc',

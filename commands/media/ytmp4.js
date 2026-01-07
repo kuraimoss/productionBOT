@@ -5,7 +5,6 @@ module.exports = {
     category: "media",
     query: true,
     url: true,
-    limit: true,
     async handler(m, { conn, q, command }) {
         await m.reply(response.wait)
         let urlt = q.split("|")[0] ? q.split("|")[0] : q

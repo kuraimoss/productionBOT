@@ -16,7 +16,7 @@ async function call(json, conn) {
 		db.data.call[sender].count += 1
 		await db.write();
 		conn.sendMessage(sender, {
-			text: `ZackMans tidak bisa menerima panggilan telfon, anda menelfon sebanyak *${db.data.call[sender].count}* kali, jika kamu masih spam telfon sampai 3 kali, kamu akan diblockir, hubungi @${owner[1].split("@")[0]} untuk membuka pemblokiran.`, withTag: true
+			text: `${botName} tidak bisa menerima panggilan telfon, anda menelfon sebanyak *${db.data.call[sender].count}* kali, jika kamu masih spam telfon sampai 3 kali, kamu akan diblockir, hubungi @${owner[0].split("@")[0]} untuk membuka pemblokiran.`, withTag: true
 		});
 		if (db.data.call[sender].count >= 3) {
 		conn.sendMessage(sender, { text: "kamu diblockir!!" })

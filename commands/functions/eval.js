@@ -1,7 +1,5 @@
 /**
-  # Created By ZackMans
-  # https://youtube.com/@BuildTheCraft
-  # https://github.com/ZackMans
+  # Identity/config is centralized in config.js
 */
 const fs = require("fs");
 const { exec } = require("child_process");
@@ -10,7 +8,7 @@ module.exports = {
 name: "eval",
 function: true,
 category: "owner",
-async handler(m, { conn, chats, budy, body, prefix, args, command, isCreator, q, msg, resetLimit }) {
+async handler(m, { conn, chats, budy, body, prefix, args, command, isCreator, q, msg }) {
 //if (body.startsWith('> while')) return
 if (body.startsWith('>')) {
 if (!isCreator) return

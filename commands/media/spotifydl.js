@@ -5,7 +5,6 @@ cmd: ["spotifydl","spdl"],
 category: "media",
 query: true,
 url: true,
-limit: true,
 async handler(m, { conn, q, args }) {
 await m.reply(response.wait)
 if (SpotifyTrRegex.test(args[0])) {

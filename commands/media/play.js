@@ -5,7 +5,6 @@ module.exports = {
     cmd: ["play"],
     category: "media",
     query: true,
-    limit: true,
     async handler(m, { conn, q, command }) {
         await m.reply(response.wait)
         let rData = await scraper.youtube.search(q)

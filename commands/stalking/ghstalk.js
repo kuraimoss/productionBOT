@@ -5,7 +5,6 @@ param: "<query>",
 cmd: ["githubstalk","ghstalk"],
 category: "stalking",
 query: true,
-limit: true,
 async handler(m, { conn, q, command }) {
 await m.reply(response.wait)
 let resd = await scraper.media.ghuser(q)

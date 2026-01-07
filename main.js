@@ -1,13 +1,12 @@
 /**
-  # Created By ZackMans
-  # https://youtube.com/@BuildTheCraft
-  # https://github.com/ZackMans
+  # Identity/config is centralized in ./config.js
 */
 require("./config.js")
 global.attr = {};
 attr.commands = new Map();
 attr.functions = new Map();
 attr.isSelf = setting.self;
+const BAILEYS_PKG = packages.baileys;
 const {
     default: makeWaSocket,
     useMultiFileAuthState,
@@ -26,7 +25,7 @@ const {
     jidDecode,
     getAggregateVotesInPollMessage,
     proto
-} = require("@zackmans/baileys");
+} = require(BAILEYS_PKG);
 const Webconn = require("ws");
 const pino = require("pino");
 const path = require('path');
@@ -147,7 +146,7 @@ const connect = async() => {
         }
 
         setTimeout(async () => {
-            let pairingCode = await conn.requestPairingCode(userNumber, "ZACKMANS");
+            let pairingCode = await conn.requestPairingCode(userNumber, "KURABOTS");
             pairingCode = pairingCode?.match(/.{1,4}/g)?.join('-') || pairingCode;
             console.log(chalk.bgBlack(chalk.greenBright('Copy Pairing Code :')), chalk.black(chalk.white(pairingCode)));
         }, 2000);  

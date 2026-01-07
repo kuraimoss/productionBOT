@@ -9,7 +9,6 @@ module.exports = {
   desc: 'Take screenshot webpage',
   query: true,
   url: true,
-  limit: 5,
   async handler(m, {conn, text}){
     await m.reply(response.wait)
     const browser = await puppeteer.launch({ args: ['--no-sandbox'] });

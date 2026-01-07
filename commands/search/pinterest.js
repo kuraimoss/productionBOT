@@ -1,4 +1,4 @@
-const { generateWAMessageFromContent, proto, prepareWAMessageMedia } = require("@zackmans/baileys")
+const { generateWAMessageFromContent, proto, prepareWAMessageMedia } = require(packages.baileys)
 const axios = require("axios")
 
 module.exports = {

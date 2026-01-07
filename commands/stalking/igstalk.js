@@ -4,7 +4,6 @@ param: "<query>",
 cmd: ["instagramstalk","igstalk"],
 category: "stalking",
 query: true,
-limit: true,
 async handler(m, { conn, q, command }) {
 await m.reply(response.wait)
 let igSt = await scraper.instagram.stalk(q)

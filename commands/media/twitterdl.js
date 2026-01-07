@@ -5,7 +5,6 @@ cmd: ["twdl","twitter"],
 category: "media",
 query: true,
 url: true,
-limit: true,
 async handler(m, { conn, q, args }) {
 await ctx.reply(response.wait)
 if (TwIdRegex.test(args[0])) {

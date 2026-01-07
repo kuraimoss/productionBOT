@@ -6,7 +6,6 @@ desc: "Mengclone Repository In Github",
 param: "<url>",
 query: true,
 url: true,
-limit: 10,
 async handler(m, { conn, q, args }) {
 await m.reply(response.wait)
 const name = q.split('/')[3]

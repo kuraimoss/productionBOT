@@ -4,7 +4,6 @@ param: "<query>",
 cmd: ["npmstalk"],
 category: "stalking",
 query: true,
-limit: true,
 async handler(m, { conn, q, command }) {
 await m.reply(response.wait)
 let a = await tool.fetchJson(`https://registry.npmjs.com/${q}`)

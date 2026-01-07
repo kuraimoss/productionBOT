@@ -1,7 +1,5 @@
 /**
-  # Created By ZackMans
-  # https://youtube.com/@BuildTheCraft
-  # https://github.com/ZackMans
+  # Identity/config is centralized in config.js
 */
 const id3 = require("node-id3")
 

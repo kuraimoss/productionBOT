@@ -5,7 +5,6 @@ cmd: ["fbdl","facebook"],
 category: "media",
 query: true,
 url: true,
-limit: true,
 async handler(m, { conn, args, command }) {
 await m.reply(response.wait)
 if (FbIdRegex.test(args[0])) {

@@ -1,5 +1,16 @@
 node_modules/
 
+# Runtime/session data (do not commit)
+session/
+sessions/
+session-*/
+auth_info_baileys/
+baileys_auth_info/
+*.session
+database/json/user.json
+database/json/database.json
+database/json/hit.json
+
 # Logs
 logs/
 *.log

@@ -7,7 +7,6 @@ module.exports = {
     cmd: ['smeme'],
     category: 'tools',
     query: 'Wrong Format\nExample : .smeme Test|oke',
-    limit: 3,
     async handler(m, {conn, q}){
         text = q.replace(/\?/g, '')
         thund = moment.tz("Asia/Jakarta").format("DD/MM/YYYY")

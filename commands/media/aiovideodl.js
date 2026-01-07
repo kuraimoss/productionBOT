@@ -5,7 +5,6 @@ cmd: ["aiovideodl","aiovdl","aio"],
 category: "media",
 query: true,
 url: true,
-limit: 3,
 async handler(m, { conn, q, args }) {
 await m.reply(response.wait)
 if (IgIdRegex.test(m.body) || FbIdRegex.test(m.body) || TwIdRegex.test(m.body) || TtIdRegex.test(m.body) || TtId2Regex.test(m.body)) {

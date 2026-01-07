@@ -1,7 +1,7 @@
 const fs = require("fs");
 const prettyms = require("pretty-ms");
 const { showhit } = require("../../database/hit");
-const { generateWAMessageFromContent, proto, prepareWAMessageMedia } = require("@zackmans/baileys")
+const { generateWAMessageFromContent, proto, prepareWAMessageMedia } = require(packages.baileys)
 
 const toTimer = (seconds) => {
  function pad(s) {
@@ -18,7 +18,7 @@ const toTimer = (seconds) => {
 async function Menu(m, { conn, prefix, cmd, tags, tagse }) {
 
 async function sendPesan(teks) {
-let contextInfo = { groupMentions: [{ groupJid: setting.group.id, groupSubject: "ZACK-MANS: general" }], isForwarded: true, forwardingScore: 1, forwardedNewsletterMessageInfo: { newsletterJid: setting.saluran.id, serverMessageId: setting.saluran.message.hadiah, newsletterName: `LIHAT SALURAN ${author.toUpperCase()}` }, externalAdReply: {
+let contextInfo = { groupMentions: [{ groupJid: setting.group.id, groupSubject: menuGroupSubject }], isForwarded: true, forwardingScore: 1, forwardedNewsletterMessageInfo: { newsletterJid: setting.saluran.id, serverMessageId: setting.saluran.message.hadiah, newsletterName: `LIHAT SALURAN ${author.toUpperCase()}` }, externalAdReply: {
   sourceUrl: medsos.instagram,
   mediaType: 1,
   thumbnailUrl: medsos.instagram,
@@ -30,7 +30,7 @@ let contextInfo = { groupMentions: [{ groupJid: setting.group.id, groupSubject: 
   m.reply(`Hai, @${m.sender.split("@")[0]} bergabunglah ke group @${setting.group.id} dan Berikut ini adalah daftar menu\n` + teks, { contextInfo, withTag: true })
   /*
 if (["android","ios"].includes(m.user.device)) {
-const ppuser = await conn.profilePictureUrl(m.sender).catch(() => "https://zackmans.github.io/media/pp.jpg")
+const ppuser = await conn.profilePictureUrl(m.sender).catch(() => assets.defaultProfilePictureUrl || assets.defaultProfilePicture)
 const msg = generateWAMessageFromContent(m.from, { viewOnceMessage: { message: { messageContextInfo: { deviceListMetadata: {}, deviceListMetadataVersion: 2 },
 
   interactiveMessage: proto.Message.InteractiveMessage.create({

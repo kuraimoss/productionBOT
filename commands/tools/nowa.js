@@ -4,7 +4,6 @@ module.exports = {
     param: "<number>",
     category: "tools",
     query: `Enter your number!\nExample : #nowa 628956190835xx`,
-    limit: 10,
     async handler(m, {q,conn}){
       const moment = require('moment-timezone');
             var teks = q

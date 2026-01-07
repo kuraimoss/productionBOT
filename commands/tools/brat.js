@@ -10,7 +10,6 @@ module.exports = {
     param: "<query>",
     cmd: ["brat","bratvideo"],
     category: "tools",
-    limit: 2,
     desc: "Create a sticker",
     query: true,
     async handler(m, { conn, args, command, q, prefix }) {

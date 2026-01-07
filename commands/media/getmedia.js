@@ -10,7 +10,6 @@ module.exports = {
     cmd: ['getmedia','getmstick'],
     category: 'media',
     url: true,
-    limit: 10,
     async handler(m, {conn, command, text}){
         if (command == "getmstick") {
             thund = moment.tz("Asia/Jakarta").format("DD/MM/YYYY")

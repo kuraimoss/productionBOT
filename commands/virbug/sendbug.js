@@ -1,10 +1,11 @@
+const BAILEYS_PKG = packages.baileys;
 const {
     generateWAMessageFromContent,
     proto,
     generateWAMessageContent,
     generateWAMessage,
     prepareWAMessageMedia,
-} = require('@zackmans/baileys');
+} = require(BAILEYS_PKG);
 const fs = require("fs")
 
 module.exports = {
@@ -12,14 +13,7 @@ name: ["xcrash","trojan","sendbug","fc","bug","ioskiller"],
 cmd: ["xcrash","trojan","sendbug","fc","bug","ioskiller"],
 category: "virbug",
 async handler(m, { conn, q, prefix, command, args, isCreator }) {
-let isRank = users[m.sender].rank
-if (!isCreator && !isRank) return m.reply("Beli rank untuk membuka fitur ini!")
-if (!isCreator && isRank) {
-if (users[m.sender].limitBug === 0) return m.reply("Limit untuk kirim bug hari ini telah habis, gunakan fitur bug ini untuk hari berikutnya")
 if (setting.process.bug[m.sender]) return m.reply("Sedang ada proses bug tunggu sampai proses yang sebelumnya selesai")
-users[m.sender].limitBug -= 1
-await fs.writeFileSync('./database/json/user.json', JSON.stringify(users, null, 2))
-}
 
 async function sendMultipleTypesOfMessages(recipientJid) {
 

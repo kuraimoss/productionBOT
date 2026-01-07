@@ -4,7 +4,6 @@ cmd: ['iplookup'],
 param: "<ip>",
 category: "tools",
 query: true,
-limit: true,
 async handler(m, {args,conn}){
 
 scraper.tools.iplookup(args[0]).then(async(data) => {

@@ -6,7 +6,6 @@ param: "<query>",
 cmd: ["ai","aichatgpt","aichat","openai"],
 category: "media",
 query: true,
-limit: true,
 async handler(m, { conn, q, isImage, isQImage }) {
     const voiceCommandRegex = /(?:^|\s)voice(?:\s|$)/i;
     let text = q.replace("voice", "")
@@ -15,7 +14,7 @@ async handler(m, { conn, q, isImage, isQImage }) {
       db.data.openai[m.sender] = [];
       await db.write()
     }
-    if (db.data.openai[m.sender].length >= 10) {
+    if (db.data.openai[m.sender].length >= 30) {
       db.data.openai[m.sender] = [];
       await db.write()
     }

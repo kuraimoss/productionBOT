@@ -4,7 +4,6 @@ cmd: ["listonline", "listaktif"],
 category: "group",
 desc: "Get List Online",
 group: true,
-limit: true,
 async handler(m, { conn, args }) {
 let id = args && /\d+\-\d+@g.us/.test(args[0]) ? args[0] : m.from
 let online = [...Object.keys(conn.presences[id])]

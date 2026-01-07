@@ -5,7 +5,6 @@ cmd: ["tiktokdl","ttdl"],
 category: "media",
 query: true,
 url: true,
-limit: true,
 async handler(m, { conn, q, args }) {
 await m.reply(response.wait)
 if (TtIdRegex.test(args[0]) || TtId2Regex.test(args[0])) {

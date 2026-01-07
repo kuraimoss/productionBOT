@@ -4,7 +4,6 @@ name: "get",
 param: "<url>",
 cmd: ["get"],
 category: "tools",
-limit: 2,
 query: true,
 url: true,
 async handler(m, { conn, args }) {
