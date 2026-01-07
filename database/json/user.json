@@ -4,6 +4,8 @@
     "auto": {
       "ai": true,
       "dl": true
-    }
+    },
+    "introShown": true,
+    "introShownAt": 1767821893609
   }
 }

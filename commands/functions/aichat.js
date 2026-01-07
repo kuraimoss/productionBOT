@@ -154,170 +154,7 @@ const ACTION_WORDS = new Set([
     "get",
 ]);
 
-const CATEGORY_KEYWORDS = [
-    {
-        category: "group",
-        keywords: [
-            "group",
-            "grup",
-            "gc",
-            "kick",
-            "ban",
-            "promote",
-            "demote",
-            "mute",
-            "unmute",
-            "tagall",
-            "hidetag",
-            "link",
-            "revoke",
-            "setname",
-            "setsubject",
-            "setdesc",
-            "seticon",
-            "opengc",
-            "closegc",
-            "open",
-            "close",
-            "antilink",
-            "antibot",
-            "antispam",
-            "listonline",
-        ],
-    },
-    {
-        category: "media",
-        keywords: [
-            "sticker",
-            "stiker",
-            "image",
-            "gambar",
-            "video",
-            "audio",
-            "voice",
-            "music",
-            "lagu",
-            "tiktok",
-            "yt",
-            "youtube",
-            "ig",
-            "instagram",
-            "fb",
-            "facebook",
-            "gif",
-        ],
-    },
-    {
-        category: "search",
-        keywords: [
-            "search",
-            "cari",
-            "find",
-            "lookup",
-            "whois",
-            "ip",
-            "domain",
-            "dns",
-            "cek",
-            "github",
-            "username",
-        ],
-    },
-    {
-        category: "stalking",
-        keywords: ["stalk", "stalking", "igstory", "githubstalk"],
-    },
-    {
-        category: "tools",
-        keywords: [
-            "tool",
-            "convert",
-            "toimg",
-            "tovideo",
-            "toaudio",
-            "qr",
-            "translate",
-            "trans",
-            "calc",
-            "count",
-            "short",
-            "url",
-            "encode",
-            "decode",
-        ],
-    },
-    {
-        category: "information",
-        keywords: ["info", "about", "help", "menu", "fitur", "feature", "status", "ping", "uptime"],
-    },
-    {
-        category: "owner",
-        keywords: ["owner", "eval", "exec", "shell", "terminal", "reboot", "restart", "shutdown", "deploy", "update"],
-    },
-    {
-        category: "virbug",
-        keywords: ["bug", "virbug", "crash", "spam", "flood"],
-    },
-];
 
-const OWNER_KEYWORDS = [
-    "owner",
-    "eval",
-    "exec",
-    "shell",
-    "terminal",
-    "reboot",
-    "restart",
-    "shutdown",
-    "deploy",
-    "update",
-    "config",
-    "token",
-    "apikey",
-    "api key",
-    "write",
-    "create",
-    "delete",
-    "hapus",
-];
-
-const ADMIN_KEYWORDS = [
-    "kick",
-    "ban",
-    "mute",
-    "unmute",
-    "promote",
-    "demote",
-    "tagall",
-    "hidetag",
-    "setname",
-    "setsubject",
-    "setdesc",
-    "seticon",
-    "revoke",
-    "opengc",
-    "closegc",
-    "banchat",
-    "unbanchat",
-    "antilink",
-    "antibot",
-    "antispam",
-];
-
-const BOTADMIN_KEYWORDS = [
-    "kick",
-    "ban",
-    "promote",
-    "demote",
-    "seticon",
-    "setpp",
-    "revoke",
-    "link",
-    "open",
-    "close",
-    "add",
-    "remove",
-];
 
 function normalizeText(text) {
     return String(text || "")
@@ -336,6 +173,20 @@ function tokenize(text) {
         .map((s) => s.trim())
         .filter(Boolean)
         .filter((s) => !STOPWORDS_SCORE.has(s));
+}
+
+function looksLikeCommandIntent(text) {
+    const raw = String(text || "").trim();
+    if (!raw) return false;
+    if (/^[.#/!]/.test(raw)) return true;
+
+    const normalized = normalizeText(raw);
+    if (!normalized) return false;
+    const tokens = normalized.split(/\s+/).filter(Boolean);
+    if (tokens.length === 0) return false;
+    if (ACTION_WORDS.has(tokens[0])) return true;
+    if (tokens.length === 1 && (tokens[0] === "menu" || tokens[0] === "help")) return true;
+    return tokens.some((token) => ACTION_WORDS.has(token));
 }
 
 function scoreCommand(queryTokens, commandName) {
@@ -457,84 +308,6 @@ function findLoadedCommand(name) {
     return null;
 }
 
-function pickCategory(text) {
-    const t = normalizeText(text);
-    let best = { category: "other", score: 0 };
-    for (const entry of CATEGORY_KEYWORDS) {
-        let score = 0;
-        for (const kw of entry.keywords) {
-            if (t.includes(kw)) score += 1;
-        }
-        if (score > best.score) best = { category: entry.category, score };
-    }
-    return best.category;
-}
-
-function inferPermissions(text, category) {
-    const t = normalizeText(text);
-    const owner = OWNER_KEYWORDS.some((k) => t.includes(k));
-    let admin = ADMIN_KEYWORDS.some((k) => t.includes(k));
-    let botadmin = BOTADMIN_KEYWORDS.some((k) => t.includes(k));
-    if (owner) {
-        admin = false;
-        botadmin = false;
-    }
-    const group = category === "group" || admin || botadmin;
-    return { owner, admin, botadmin, group };
-}
-
-function sanitizeCommandName(name) {
-    const safe = String(name || "")
-        .toLowerCase()
-        .replace(/[^a-z0-9_-]/g, "");
-    return safe || "cmd";
-}
-
-function deriveCommandName(text) {
-    const normalized = normalizeText(text).replace(/^[.#/]/, "");
-    const tokens = normalized.split(/\s+/).filter(Boolean);
-    const filtered = tokens.filter((t) => !STOPWORDS_ARGS.has(t));
-    return sanitizeCommandName(filtered[0] || tokens[0] || "cmd");
-}
-
-function buildStubCommand(name, category, perms) {
-    const lines = [
-        "module.exports = {",
-        `  name: "${name}",`,
-        `  cmd: ["${name}"],`,
-        `  category: "${category}",`,
-        '  desc: "Auto-generated command",',
-    ];
-    if (perms.owner) lines.push("  owner: true,");
-    if (perms.admin) lines.push("  admin: true,");
-    if (perms.botadmin) lines.push("  botadmin: true,");
-    if (perms.group) lines.push("  group: true,");
-    lines.push("  async handler(m, { text }) {");
-    lines.push("    const payload = String(text || \"\").trim();");
-    lines.push("    if (payload) return m.reply(\"OK: \" + payload);");
-    lines.push("    return m.reply(\"OK\");");
-    lines.push("  },");
-    lines.push("};");
-    lines.push("");
-    return lines.join("\n");
-}
-
-function ensureCommandFile(filePath, content) {
-    const rel = String(filePath || "").replace(/^[./\\]+/, "");
-    if (!rel) throw new Error("filePath tidak valid.");
-    const root = path.resolve(process.cwd(), "commands");
-    const abs = path.resolve(process.cwd(), rel);
-    if (!(abs === root || abs.startsWith(root + path.sep))) {
-        throw new Error("Akses ditolak.");
-    }
-    fs.mkdirSync(path.dirname(abs), { recursive: true });
-    if (!fs.existsSync(abs)) {
-        fs.writeFileSync(abs, String(content ?? ""), "utf8");
-        return true;
-    }
-    return false;
-}
-
 function reloadCommandFile(filePath) {
     if (typeof global.reload !== "function") return { ok: false, error: "Reload tidak tersedia di runtime." };
     const rel = String(filePath || "").replace(/^[./\\]+/, "");
@@ -548,6 +321,13 @@ function reloadCommandFile(filePath) {
 }
 
 async function runMcpExecutor(text, { m, conn }) {
+    const rawText = String(text || "").trim();
+    if (!rawText) return false;
+    if (parseMcpCommand(rawText) || parseSendFileIntent(rawText)) {
+        return false;
+    }
+    const menuIntent = isListFeaturesIntent(rawText);
+    const intentHint = looksLikeCommandIntent(rawText) || isOutGroupIntent(rawText) || menuIntent;
     const flags = {
         isOwner: !!m.attribute?.isOwner,
         isAdmin: !!m.attribute?.isAdmin,
@@ -570,9 +350,18 @@ async function runMcpExecutor(text, { m, conn }) {
             }
         }
 
-        const cmdMatch = pickBestMatch(text, commands);
+        const cmdMatch = pickBestMatch(rawText, commands);
         let chosen = cmdMatch;
         let chosenSource = "command";
+        if (!chosen && menuIntent) {
+            const hasMenu = Array.isArray(commands)
+                ? commands.some((c) => Array.isArray(c.names) && c.names.map(String).includes("menu"))
+                : false;
+            if (hasMenu) {
+                chosen = { name: "menu", item: { names: ["menu"] } };
+                chosenSource = "command";
+            }
+        }
 
         if (!chosen) {
             const files = scanCommandFiles().map((f) => ({
@@ -580,10 +369,17 @@ async function runMcpExecutor(text, { m, conn }) {
                 category: f.category,
                 filePath: f.filePath,
             }));
-            const fileMatch = pickBestMatch(text, files);
+            const fileMatch = pickBestMatch(rawText, files);
             if (fileMatch) {
                 chosen = fileMatch;
                 chosenSource = "file";
+            }
+            if (!chosen && menuIntent) {
+                const menuFile = files.find((f) => Array.isArray(f.names) && f.names.includes("menu"));
+                if (menuFile) {
+                    chosen = { name: "menu", item: menuFile };
+                    chosenSource = "file";
+                }
             }
         }
 
@@ -645,33 +441,8 @@ async function runMcpExecutor(text, { m, conn }) {
             return true;
         }
 
-        const category = pickCategory(text);
-        const name = deriveCommandName(text);
-        const perms = inferPermissions(text, category);
-        const filePath = path.join("commands", category, `${name}.js`).replace(/\\/g, "/");
-        const code = buildStubCommand(name, category, perms);
-
-        try {
-            ensureCommandFile(filePath, code);
-        } catch (e) {
-            m.reply(e?.message || "Gagal membuat command baru.");
-            return true;
-        }
-
-        const reload = reloadCommandFile(filePath);
-        if (!reload.ok) {
-            m.reply(reload.error || "Gagal reload command.");
-            return true;
-        }
-
-        const argv = extractArgs(text, name);
-        const execRes = await client.callTool({
-            name: "executeCommand",
-            arguments: { contextId, command: name, argv },
-        });
-        if (execRes.isError) {
-            m.reply(getTextFromMcpResult(execRes) || "Gagal eksekusi command baru.");
-        }
+        if (!intentHint) return false;
+        m.reply("fitur belum tersedia");
         return true;
     } catch (e) {
         m.reply(`MCP error: ${e?.message || String(e)}`);
@@ -752,17 +523,12 @@ module.exports = {
             }
             
             if (isiPesan.length != 0) {
-                const handled = await runMcpExecutor(isiPesan, { m, conn });
-                if (handled) return;
-                let isAi = false
-                let msgId = false
-
                 if (!isiPesan.startsWith(">") && !isiPesan.startsWith("<") && !isiPesan.startsWith("=>") && !isiPesan.startsWith("$")) {
-                    if (m.quoted && m.quoted.key.fromMe) msgId = m.quoted.key.id
-                    if (msgId && msgId.startsWith("AICHAT")) isAi = true
-                    if (!m.isGroup && users[m.sender].auto && users[m.sender].auto.ai && (tool.isUrl(isiPesan) ? !users[m.sender].auto.dl : true)) isAi = true
+                    const handled = await runMcpExecutor(isiPesan, { m, conn });
+                    if (handled) return;
 
-                if (isAi) {
+                    const isAi = true;
+                    if (isAi) {
                     const mcpCmd = parseMcpCommand(isiPesan);
                     if (mcpCmd) {
                         if (!m.attribute?.isOwner) return m.reply("Akses ditolak. Perintah ini khusus owner.");
@@ -928,121 +694,7 @@ module.exports = {
                         }
                     }
 
-                    if (isListFeaturesIntent(isiPesan)) {
-                        const flags = {
-                            isOwner: !!m.attribute?.isOwner,
-                            isAdmin: !!m.attribute?.isAdmin,
-                            isBotAdmin: !!m.attribute?.isBotAdmin,
-                        };
-                        const contextId = registerContext({ flags, conn, m });
-                        try {
-                            const client = await getClient();
-                            const res = await client.callTool({ name: "listCommands", arguments: { contextId } });
-                            if (res.isError) return m.reply("Maaf, aku gagal ambil daftar fitur.");
-                            const raw = getTextFromMcpResult(res);
-                            const list = JSON.parse(raw || "[]");
-                            const names = Array.isArray(list)
-                                ? list
-                                      .flatMap((c) => (Array.isArray(c.names) ? c.names : []))
-                                      .filter(Boolean)
-                                      .map((s) => "." + String(s))
-                                : [];
-                            const uniq = [...new Set(names)].sort();
-                            const preview = uniq.slice(0, 60).join("\n");
-                            return m.reply(
-                                `Fitur tersedia (${uniq.length}):\n` +
-                                    (preview || "-") +
-                                    (uniq.length > 60 ? "\n...(lebih banyak, ketik .menu)" : "")
-                            );
-                        } catch {
-                            return m.reply("Maaf, aku gagal ambil daftar fitur.");
-                        } finally {
-                            unregisterContext(contextId);
-                        }
-                    }
-
-                    if (isOutGroupIntent(isiPesan)) {
-                        if (!m.attribute?.isOwner) return m.reply("Akses ditolak. Perintah ini khusus owner.");
-                        const flags = {
-                            isOwner: !!m.attribute?.isOwner,
-                            isAdmin: !!m.attribute?.isAdmin,
-                            isBotAdmin: !!m.attribute?.isBotAdmin,
-                        };
-                        const contextId = registerContext({ flags, conn, m });
-                        try {
-                            const client = await getClient();
-                            const resCmds = await client.callTool({ name: "listCommands", arguments: { contextId } });
-                            const raw = !resCmds.isError ? getTextFromMcpResult(resCmds) : "[]";
-                            let exists = false;
-                            try {
-                                const list = JSON.parse(raw || "[]");
-                                exists =
-                                    Array.isArray(list) &&
-                                    list.some((c) => Array.isArray(c.names) && c.names.map(String).includes("outgroup"));
-                            } catch {
-                                exists = false;
-                            }
-
-                            if (!exists) {
-                                const code =
-                                    'module.exports = {\\n' +
-                                    '  name: \"outgroup\",\\n' +
-                                    '  category: \"owner\",\\n' +
-                                    '  owner: true,\\n' +
-                                    '  async handler(m, { conn }) {\\n' +
-                                    '    if (!m.isGroup) return m.reply(\"Perintah ini khusus grup.\");\\n' +
-                                    '    await conn.groupLeave(m.from);\\n' +
-                                    '  },\\n' +
-                                    '};\\n';
-                                const created = await client.callTool({
-                                    name: "createCommand",
-                                    arguments: { contextId, name: "outgroup", code },
-                                });
-                                if (created.isError) return m.reply("Gagal buat command outgroup.");
-                                await client.callTool({
-                                    name: "reloadCommand",
-                                    arguments: { contextId, filePath: "commands/custom/outgroup.js" },
-                                });
-                            }
-
-                            const exec = await client.callTool({
-                                name: "executeCommand",
-                                arguments: { contextId, command: "outgroup", argv: [] },
-                            });
-                            if (exec.isError) return m.reply(getTextFromMcpResult(exec) || "Gagal eksekusi outgroup.");
-                            return m.reply("OK");
-                        } finally {
-                            unregisterContext(contextId);
-                        }
-                    }
-
-                    // Let MCP auto-detect commands from registered command list
-                    {
-                        const flags = {
-                            isOwner: !!m.attribute?.isOwner,
-                            isAdmin: !!m.attribute?.isAdmin,
-                            isBotAdmin: !!m.attribute?.isBotAdmin,
-                        };
-                        const contextId = registerContext({ flags, conn, m });
-                        try {
-                            const client = await getClient();
-                            const res = await client.callTool({
-                                name: "autoExecute",
-                                arguments: { contextId, text: isiPesan },
-                            });
-                            if (!res?.isError) {
-                                try {
-                                    const payload = JSON.parse(getTextFromMcpResult(res) || "{}");
-                                    if (payload && payload.executed) return;
-                                } catch {
-                                    // ignore
-                                }
-                            }
-                        } finally {
-                            unregisterContext(contextId);
-                        }
-                    }
-
+                    // MCP auto-execute disabled: command intent is handled before chat.
                     const baseSystemMessage = {
                         role: "system",
                         content:
