@@ -33,6 +33,18 @@ function isOutGroupIntent(text) {
     return /\b(out\s*group|keluar\s+dari\s+gr(up|up)|leave\s+group)\b/.test(t);
 }
 
+function parseCommandIntent(text) {
+    const t = String(text || "").trim();
+    const m =
+        t.match(/^(?:buat(?:kan)?|bikin(?:kan)?|tolong\s+buat(?:kan)?|jalankan|run)\s+([a-z0-9_-]+)\b\s*(.*)$/i) ||
+        t.match(/^([a-z0-9_-]+)\b\s+(.+)$/i);
+    if (!m) return null;
+    const cmd = String(m[1] || "").toLowerCase();
+    const rest = String(m[2] || "").trim();
+    if (!cmd) return null;
+    return { cmd, rest };
+}
+
 function isGreeting(text) {
     if (!text) return false;
     const t = String(text).trim().toLowerCase();
@@ -397,6 +409,49 @@ module.exports = {
                             });
                             if (exec.isError) return m.reply(getTextFromMcpResult(exec) || "Gagal eksekusi outgroup.");
                             return m.reply("OK");
+                        } finally {
+                            unregisterContext(contextId);
+                        }
+                    }
+
+                    // Generic command orchestration (via MCP) for natural-language requests
+                    // Example: "buat brat saya gila" -> executeCommand("brat", ["saya","gila"])
+                    const cmdIntent = parseCommandIntent(isiPesan);
+                    if (cmdIntent) {
+                        const flags = {
+                            isOwner: !!m.attribute?.isOwner,
+                            isAdmin: !!m.attribute?.isAdmin,
+                            isBotAdmin: !!m.attribute?.isBotAdmin,
+                        };
+                        const contextId = registerContext({ flags, conn, m });
+                        try {
+                            const client = await getClient();
+                            const resCmds = await client.callTool({ name: "listCommands", arguments: { contextId } });
+                            if (resCmds.isError) throw new Error("LIST_FAIL");
+                            const list = JSON.parse(getTextFromMcpResult(resCmds) || "[]");
+                            const found = Array.isArray(list)
+                                ? list.find((c) => Array.isArray(c.names) && c.names.map(String).includes(cmdIntent.cmd))
+                                : null;
+                            if (!found) throw new Error("NOT_A_COMMAND");
+
+                            if (found.owner && !flags.isOwner) return m.reply("Akses ditolak. Perintah ini khusus owner.");
+                            if (found.admin && !(flags.isAdmin || flags.isOwner)) return m.reply("Akses ditolak. Perintah ini khusus admin.");
+                            if (found.botadmin && !(flags.isBotAdmin || flags.isOwner))
+                                return m.reply("Akses ditolak. Bot tidak memiliki izin admin.");
+
+                            const argv = cmdIntent.rest ? cmdIntent.rest.split(/\s+/).filter(Boolean) : [];
+                            const res = await client.callTool({
+                                name: "executeCommand",
+                                arguments: { contextId, command: cmdIntent.cmd, argv },
+                            });
+                            if (res.isError) return m.reply(getTextFromMcpResult(res) || "Gagal menjalankan perintah.");
+                            return;
+                        } catch (e) {
+                            if (String(e?.message) === "NOT_A_COMMAND") {
+                                // not a command -> continue to AI chat
+                            } else {
+                                return m.reply("Maaf, perintahnya gagal dijalankan.");
+                            }
                         } finally {
                             unregisterContext(contextId);
                         }
