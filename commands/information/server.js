@@ -31,14 +31,32 @@ Object.keys(networkInterfaces).forEach((interfaceName) => {
 });
 
 if (!ipAddresses[0]) {
-  return m.reply("IP publik tidak terdeteksi.");
+  let caption = "";
+  caption += `${gatas} OS : ${os.type()} (${os.arch()} / ${os.release()})\n`;
+  caption += `${gtn} Ram : ${formatSize(os.totalmem() - os.freemem())} / ${formatSize(os.totalmem())}\n`;
+  caption += `${gtn} Uptime : ${tool.toTimer(os.uptime())}\n`;
+  caption += `${gtn} IP Lokal : -\n`;
+  caption += `${gbawah} Processor : ${os.cpus()[0] ? os.cpus()[0].model : "-"}\n\n`;
+  caption += `${shp} Info IP publik tidak tersedia.\n`;
+  return m.reply(caption)
 }
 
-const json = await scraper.tools.iplookup(ipAddresses[0]);
+let json = null;
+let ipError = null;
+try {
+  json = await scraper.tools.iplookup(ipAddresses[0]);
+} catch (e) {
+  ipError = e?.message || String(e);
+}
 let caption = "";
 caption += `${gatas} OS : ${os.type()} (${os.arch()} / ${os.release()})\n`;
 caption += `${gtn} Ram : ${formatSize(os.totalmem() - os.freemem())} / ${formatSize(os.totalmem())}\n`;
-for (let key in json.result) if (key !== "status") caption += `${gtn} ${ucword(key)} : ${json.result[key]}\n`;
+caption += `${gtn} IP Lokal : ${ipAddresses.join(", ")}\n`;
+if (json?.result) {
+  for (let key in json.result) if (key !== "status") caption += `${gtn} ${ucword(key)} : ${json.result[key]}\n`;
+} else {
+  caption += `${gtn} IP Publik : tidak tersedia (${ipError || "unknown"})\n`;
+}
 caption += `${gtn} Uptime : ${tool.toTimer(os.uptime())}\n`;
 caption += `${gbawah} Processor : ${os.cpus()[0] ? os.cpus()[0].model : "-"}\n\n`;
 return m.reply(caption)
