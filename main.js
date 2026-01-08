@@ -35,6 +35,7 @@ const chalk = require("chalk");
 const NodeCache = require('node-cache');
 const util = require('util');
 const chokidar = require("chokidar");
+const moment = require("moment-timezone");
 const { exec, spawn, execSync } = require("child_process");
 const { addhit } = require("./database/hit.js");
 require('./lib/proto')
@@ -61,13 +62,87 @@ let hasOnline = false;
 let hasAuth = false;
 let hasReady = false;
 
+const reportError = async (label, err, meta = {}) => {
+    const normalizeText = (val, max = 1000) => {
+        if (val === undefined || val === null) return "";
+        let text = String(val).replace(/\s+/g, " ").trim();
+        if (text.length > max) text = text.slice(0, max) + "...";
+        return text;
+    };
+    const inferReason = (e) => {
+        const code = e?.code || e?.errno || e?.name || "";
+        const status = e?.response?.status || e?.status;
+        const msg = String(e?.message || "");
+        const method = e?.config?.method ? String(e.config.method).toUpperCase() : "";
+        const url = e?.config?.url || e?.response?.config?.url || "";
+        const statusText = e?.response?.statusText || "";
+        const parts = [];
+        if (status) {
+            const map = {
+                400: "Bad Request",
+                401: "Unauthorized",
+                403: "Forbidden",
+                404: "Not Found",
+                408: "Request Timeout",
+                409: "Conflict",
+                413: "Payload Too Large",
+                429: "Rate Limited",
+                500: "Server Error",
+                502: "Bad Gateway",
+                503: "Service Unavailable",
+                504: "Gateway Timeout",
+            };
+            parts.push(`HTTP ${status}${map[status] ? ` (${map[status]})` : ""}${statusText ? ` - ${statusText}` : ""}`);
+        }
+        if (method || url) parts.push(`Request: ${[method, url].filter(Boolean).join(" ")}`);
+        if (/ENOTFOUND|EAI_AGAIN/.test(code)) parts.push("DNS lookup failed");
+        if (/ECONNREFUSED/.test(code)) parts.push("Connection refused");
+        if (/ECONNRESET/.test(code)) parts.push("Connection reset");
+        if (/ETIMEDOUT/.test(code)) parts.push("Request timed out");
+        if (/EACCES|EPERM/.test(code)) parts.push("Permission denied");
+        if (/ENOENT/.test(code)) parts.push("File not found");
+        if (/invalid|not valid|unsupported/i.test(msg)) parts.push("Invalid input");
+        if (code && !parts.some((p) => p.includes(code))) parts.push(`Code: ${code}`);
+        return parts.join(" | ") || "Unknown error";
+    };
+    const stack = normalizeText(err?.stack || err);
+    const reason = inferReason(err);
+    const time = moment.tz("Asia/Jakarta").format("DD MMM YYYY HH:mm:ss");
+    const extra = Object.entries(meta)
+        .filter(([, v]) => v !== undefined && v !== null && v !== "")
+        .map(([k, v]) => `${k}: ${v}`)
+        .join("\n");
+    console.error(`[${label}] ${stack}`);
+    if (global.conn && owner?.[0]) {
+        const text = [
+            "*Error Report*",
+            `Type: ${label}`,
+            `Time: ${time} WIB`,
+            `Reason: ${reason}`,
+            extra ? extra : null,
+            "Stack:",
+            "```",
+            stack || "-",
+            "```",
+        ].filter(Boolean).join("\n");
+        try {
+            await global.conn.sendMessage(owner[0], { text });
+        } catch {}
+    }
+};
+global.reportError = reportError;
+
 const ReadFitur = () => {
     let pathdir = path.join(__dirname, "./commands");
     let fitur = fs.readdirSync(pathdir);
     for (let fold of fitur) {
         for (let filename of fs.readdirSync(__dirname + `/commands/${fold}`)) {
-            plugins = require(path.join(__dirname + `/commands/${fold}`, filename));
-            plugins.function ? (attr.functions[filename] = plugins) : (attr.commands[filename] = plugins);
+            try {
+                plugins = require(path.join(__dirname + `/commands/${fold}`, filename));
+                plugins.function ? (attr.functions[filename] = plugins) : (attr.commands[filename] = plugins);
+            } catch (e) {
+                reportError("loadCommand", e, { file: `${fold}/${filename}` });
+            }
         }
     }
     if (!hasBanner) {
@@ -204,48 +279,60 @@ const connect = async() => {
         console.log(chalk.gray("Using number:"), chalk.whiteBright(userNumber));
 
         setTimeout(async () => {
-            let pairingCode = await conn.requestPairingCode(userNumber, "KURABOTS");
-            pairingCode = pairingCode?.match(/.{1,4}/g)?.join('-') || pairingCode;
-            console.log(chalk.bgBlack(chalk.greenBright('Copy Pairing Code :')), chalk.black(chalk.white(pairingCode)));
+            try {
+                let pairingCode = await conn.requestPairingCode(userNumber, "KURABOTS");
+                pairingCode = pairingCode?.match(/.{1,4}/g)?.join('-') || pairingCode;
+                console.log(chalk.bgBlack(chalk.greenBright('Copy Pairing Code :')), chalk.black(chalk.white(pairingCode)));
+            } catch (e) {
+                await reportError("pairingCode", e);
+            }
         }, 2000);  
     }
   
     conn.ev.on("creds.update", saveCreds);
     conn.ev.on('connection.update', (update) => {
-        if (update?.qr && printQrInTerminal) {
-            console.info("Loading QR Code for WhatsApp, Please Scan...")
-            qrcode.generate(update.qr, { small: true })
-        } else if (update.connection == 'connecting') {
-            LOG.status("INFO", "Connecting to WhatsApp", "cyan");
-        } else if (update.connection === 'open') {
-            if (!hasAuth) {
-                LOG.line();
-                LOG.status("AUTH", "Session authenticated", "magentaBright");
-                console.log(chalk.magentaBright(conn.user.id));
-                LOG.line();
-                hasAuth = true;
-            }
-            if (!hasReady) {
-                LOG.status("READY", "kuraBOT is fully operational", "greenBright");
-                hasReady = true;
-            }
-        } else if (update.connection === 'close') {
-            LOG.status("ERR", "Disconnected", "redBright");
-            connect();
-        } else {
-            if (update?.receivedPendingNotifications && !hasSync) {
-                LOG.status("INFO", "Syncing pending notifications", "cyan");
-                hasSync = true;
-            }
-            if (update?.isOnline && !hasOnline) {
-                LOG.status("OK", "Network status: Online", "greenBright");
-                hasOnline = true;
-            }
-        } 
+        try {
+            if (update?.qr && printQrInTerminal) {
+                console.info("Loading QR Code for WhatsApp, Please Scan...")
+                qrcode.generate(update.qr, { small: true })
+            } else if (update.connection == 'connecting') {
+                LOG.status("INFO", "Connecting to WhatsApp", "cyan");
+            } else if (update.connection === 'open') {
+                if (!hasAuth) {
+                    LOG.line();
+                    LOG.status("AUTH", "Session authenticated", "magentaBright");
+                    console.log(chalk.magentaBright(conn.user.id));
+                    LOG.line();
+                    hasAuth = true;
+                }
+                if (!hasReady) {
+                    LOG.status("READY", "kuraBOT is fully operational", "greenBright");
+                    hasReady = true;
+                }
+            } else if (update.connection === 'close') {
+                LOG.status("ERR", "Disconnected", "redBright");
+                connect();
+            } else {
+                if (update?.receivedPendingNotifications && !hasSync) {
+                    LOG.status("INFO", "Syncing pending notifications", "cyan");
+                    hasSync = true;
+                }
+                if (update?.isOnline && !hasOnline) {
+                    LOG.status("OK", "Network status: Online", "greenBright");
+                    hasOnline = true;
+                }
+            } 
+        } catch (e) {
+            reportError("connection.update", e);
+        }
     });
   
     conn.ws.on("CB:call", async (json) => {
-        require("./event/call")(json, conn);
+        try {
+            require("./event/call")(json, conn);
+        } catch (e) {
+            await reportError("CB:call", e);
+        }
     });
   
   // contacts
@@ -256,21 +343,29 @@ const connect = async() => {
 	}
 
     conn.ev.on("contacts.update", async (m) => {
-        if (Array.isArray(m)) {
-            for (let kontak of m) {
-                if (kontak?.id) {
-                    if (conn && conn.contacts) conn.contacts[kontak.id] = { ...(conn.contacts?.[kontak.id] || kontak) };
-                    fs.writeFileSync(pathContacts, JSON.stringify(conn.contacts));
+        try {
+            if (Array.isArray(m)) {
+                for (let kontak of m) {
+                    if (kontak?.id) {
+                        if (conn && conn.contacts) conn.contacts[kontak.id] = { ...(conn.contacts?.[kontak.id] || kontak) };
+                        fs.writeFileSync(pathContacts, JSON.stringify(conn.contacts));
+                    }
                 }
             }
+        } catch (e) {
+            await reportError("contacts.update", e);
         }
     })
   
     conn.ev.on("messages.upsert", async (m) => {
-        const msg = m.messages[0];
-        const type = msg.message ? Object.keys(msg.message)[0] : "";
-        if (msg && type == "protocolMessage") conn.ev.emit("message.delete", msg.message.protocolMessage.key);
-        require("./lib/handler")(conn, m);
+        try {
+            const msg = m.messages[0];
+            const type = msg.message ? Object.keys(msg.message)[0] : "";
+            if (msg && type == "protocolMessage") conn.ev.emit("message.delete", msg.message.protocolMessage.key);
+            await require("./lib/handler")(conn, m);
+        } catch (e) {
+            await reportError("messages.upsert", e);
+        }
     });
    
     return conn;
@@ -284,13 +379,13 @@ Object.freeze(global.reload)
 delete require.cache[file]
 var watcher = chokidar.watch('./commands', { ignored: /^\./, persistent: true });
 watcher
-    .on('error', function(error) { console.error('Error happened', error); })
+    .on('error', function(error) { reportError("watcher", error); })
     .on('add', function(path) { global.reload(path) })
     .on('change', function(path) { global.reload(path) })
     .on('unlink', function(path) { global.reload(path) })
     process.on("unhandledRejection", function(reason) {
-        console.error("UnhandledPromiseRejection:", reason?.stack || reason);
+        reportError("unhandledRejection", reason);
     });
     process.on("uncaughtException", function(err) {
-        console.error(err);
+        reportError("uncaughtException", err);
     });
