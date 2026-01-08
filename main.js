@@ -270,6 +270,9 @@ watcher
     .on('add', function(path) { global.reload(path) })
     .on('change', function(path) { global.reload(path) })
     .on('unlink', function(path) { global.reload(path) })
+    process.on("unhandledRejection", function(reason) {
+        console.error("UnhandledPromiseRejection:", reason?.stack || reason);
+    });
     process.on("uncaughtException", function(err) {
         console.error(err);
     });

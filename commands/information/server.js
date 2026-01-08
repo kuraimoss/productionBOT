@@ -1,5 +1,4 @@
 const os = require('os');
-const fetch = require('node-fetch');
 
 function formatSize(bytes) {
 const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
@@ -31,13 +30,16 @@ Object.keys(networkInterfaces).forEach((interfaceName) => {
   });
 });
 
-scraper.tools.iplookup(ipAddresses[0]).then(async(json) => {
+if (!ipAddresses[0]) {
+  return m.reply("IP publik tidak terdeteksi.");
+}
+
+const json = await scraper.tools.iplookup(ipAddresses[0]);
 let caption = "";
 caption += `${gatas} OS : ${os.type()} (${os.arch()} / ${os.release()})\n`;
 caption += `${gtn} Ram : ${formatSize(os.totalmem() - os.freemem())} / ${formatSize(os.totalmem())}\n`;
 for (let key in json.result) if (key !== "status") caption += `${gtn} ${ucword(key)} : ${json.result[key]}\n`;
 caption += `${gtn} Uptime : ${tool.toTimer(os.uptime())}\n`;
 caption += `${gbawah} Processor : ${os.cpus()[0] ? os.cpus()[0].model : "-"}\n\n`;
-m.reply(caption)
-})
+return m.reply(caption)
 }}
