@@ -89,6 +89,19 @@ const question = (text) => {
     })
 };
 
+const normalizeWhatsappNumber = (input) => {
+    const digits = String(input || "").replace(/\D/g, "");
+    if (!digits) return "";
+
+    // If user enters local Indonesian format (08xxxx), convert to 62xxxx.
+    if (digits.startsWith("0")) return `62${digits.slice(1)}`;
+
+    // If user enters without country code (8xxxx), assume Indonesia (62).
+    if (digits.startsWith("8")) return `62${digits}`;
+
+    return digits;
+};
+
 // Connect To Bot
 //global.store = makeInMemoryStore({ logger: pino().child({ level: 'silent', stream: 'store' }) })
 const printQrInTerminal = process.argv.includes('--qr');
@@ -163,12 +176,14 @@ const connect = async() => {
 
         let userNumber;
         userNumber = await question(chalk.bgBlack(chalk.greenBright('Your WhatsApp Number : ')));
-        userNumber = userNumber.replace(/[^0-9]/g, '');
+        userNumber = normalizeWhatsappNumber(userNumber);
 
         if (!Object.keys(PHONENUMBER_MCC).some((mcc) => userNumber.startsWith(mcc))) {
             console.log(chalk.bgBlack(chalk.redBright('Start with country code of your WhatsApp Number, Example : 628xxxxxxxx')));
             process.exit(0);
         }
+
+        console.log(chalk.gray("Using number:"), chalk.whiteBright(userNumber));
 
         setTimeout(async () => {
             let pairingCode = await conn.requestPairingCode(userNumber, "KURABOTS");
