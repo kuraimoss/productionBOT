@@ -82,6 +82,7 @@ module.exports = {
                             "Jawaban harus rapi, jelas, dan tidak berantakan; gunakan paragraf pendek atau daftar jika perlu.",
                             "Saran fitur hanya diberikan jika user butuh bantuan/bingung atau saat chat pertama.",
                             "Saat memberi saran fitur, gunakan prefix `/` (bukan prefix lain).",
+                            "Sebut nama user sesekali saat menyapa atau percakapan santai, tapi jangan terlalu sering agar tidak risih.",
                             "Saat memberi saran, sesuaikan dengan kebutuhan user dan peran user (jangan sarankan fitur owner/admin jika user bukan owner/admin).",
                             `Jangan pernah menyebut/menyarankan command atau fitur yang tidak ada. Jika user meminta fitur yang tidak tersedia, bilang tidak tersedia dan arahkan ke ${prefixChar}menu.`,
                             "Jika user tidak menyebutkan domain spesifik, jangan mengarang TLD; minta user menyebutkan domain yang diinginkan.",
@@ -227,10 +228,27 @@ module.exports = {
                         const helpRegex = /(bingung|bantuan|help|menu|fitur|command|perintah|cara|gimana|bagaimana|nggak ngerti|gak ngerti|ga ngerti|tutorial|panduan|petunjuk)/i;
                         const needsHelp = helpRegex.test(text);
                         const shouldSuggest = isFirstChat || needsHelp;
+                        const displayName = m.pushName || m.sender.split("@")[0] || "kamu";
+                        const shouldMentionName = () => {
+                            const seed = String(m.key?.id || m.id || "");
+                            let hash = 0;
+                            for (let i = 0; i < seed.length; i += 1) {
+                                hash = (hash * 31 + seed.charCodeAt(i)) >>> 0;
+                            }
+                            return hash % 4 === 0;
+                        };
+                        const maybeAddNameInGreeting = (inputText) => {
+                            const textValue = String(inputText || "");
+                            const greetRegex = /^(halo|hai|hi|helo|hallo|selamat|assalamualaikum|assalamu'alaikum)\b/i;
+                            if (greetRegex.test(textValue) && shouldMentionName()) {
+                                return textValue.replace(greetRegex, (m0) => `${m0} ${displayName}`);
+                            }
+                            return textValue;
+                        };
+                        answerText = maybeAddNameInGreeting(answerText);
 
                         if (shouldSuggest && !/saran:/i.test(answerText)) {
                             const suggestPrefix = "/";
-                            const displayName = m.pushName || m.sender.split("@")[0] || "kamu";
                             const available = availableCommands;
 
                             const userTokens = (text.toLowerCase().match(/[a-z0-9]+/g) || []).filter((t) => t.length >= 3);
@@ -258,7 +276,7 @@ module.exports = {
                                     const desc = s.cmd.desc ? ` - ${s.cmd.desc}` : "";
                                     return `${suggestPrefix}${cmdName}${desc}`;
                                 }).join("\n");
-                                if (!new RegExp(`\\b${displayName}\\b`, "i").test(answerText)) {
+                                if (shouldMentionName() && !new RegExp(`\\b${displayName}\\b`, "i").test(answerText)) {
                                     answerText = `Hai ${displayName}!\n\n${answerText}`;
                                 }
                                 answerText = `${answerText}\n\nSaran:\n${sugText}`;
