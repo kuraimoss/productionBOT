@@ -24,13 +24,13 @@ module.exports = {
         wktud = moment.tz("Asia/Jakarta").format("HH:mm:ss")
         const packInfo = {
             packname: text ? q[0] ? q[0] : '' : setting.packInfo.packname,
-            author: text ? q[1] ? q[1] : '' : setting.packInfo.author + `+${m.sender.split("@")[0]}\n ▸ 𝗖𝗿𝗲𝗮𝘁𝗲𝗱 : ${thund} ${wktud}`,
+            author: text ? q[1] ? q[1] : '' : getPackAuthor(conn) + `+${m.sender.split("@")[0]}\n ▸ 𝗖𝗿𝗲𝗮𝘁𝗲𝗱 : ${thund} ${wktud}`,
         };
         let buffer, stickerBuff;
         try {
             if (isQSticker) {
                 const buffer = await quoted.download("./temp/" + await tool.getRandom('.webp'));
-                await createExif(text ? q[0] ? q[0] : '' : setting.packInfo.packname, text ? q[1] ? q[1] : '' : setting.packInfo.author + `+${m.sender.split("@")[0]}\n ▸ 𝗖𝗿𝗲𝗮𝘁𝗲𝗱 : ${thund} ${wktud}`);
+                await createExif(text ? q[0] ? q[0] : '' : setting.packInfo.packname, text ? q[1] ? q[1] : '' : getPackAuthor(conn) + `+${m.sender.split("@")[0]}\n ▸ 𝗖𝗿𝗲𝗮𝘁𝗲𝗱 : ${thund} ${wktud}`);
                 await modStick(buffer, conn, m, m.from);
             } else if ((isMedia && !m.message.videoMessage) || isQImage) {
                 const buffer = isQImage ? await quoted.download() : await m.download();

@@ -15,7 +15,7 @@ module.exports = {
         if (command == "getmstick") {
             thund = moment.tz("Asia/Jakarta").format("DD/MM/YYYY")
             wktud = moment.tz("Asia/Jakarta").format("HH:mm:ss")
-            packInfo = { packname: setting.packInfo.packname, author: setting.packInfo.author + `+${m.sender.split("@")[0]}\n ▸ 𝗖𝗿𝗲𝗮𝘁𝗲𝗱 : ${thund} ${wktud}` };
+            packInfo = { packname: setting.packInfo.packname, author: getPackAuthor(conn) + `+${m.sender.split("@")[0]}\n ▸ 𝗖𝗿𝗲𝗮𝘁𝗲𝗱 : ${thund} ${wktud}` };
             let typeM = "";
             if (/.webp/.test(text)) {
                 let buffer = await tool.getBuffer(text)

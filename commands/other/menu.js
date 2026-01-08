@@ -27,7 +27,30 @@ let contextInfo = { groupMentions: [{ groupJid: setting.group.id, groupSubject: 
   body: `Version: ${setting.version}`,
   renderLargerThumbnail: true
   }}
-  m.reply(`Hai, @${m.sender.split("@")[0]} bergabunglah ke group @${setting.group.id} dan Berikut ini adalah daftar menu\n` + teks, { contextInfo, withTag: true })
+  const hour = new Date().getHours()
+  const waktu =
+    hour >= 3 && hour < 5 ? "subuh" :
+    hour >= 5 && hour < 11 ? "pagi" :
+    hour >= 11 && hour < 15 ? "siang" :
+    hour >= 15 && hour < 18 ? "sore" : "malam"
+  const salam = [
+    "Hai",
+    "Halo",
+    "Hey",
+    "Hii",
+    "Yo",
+    "Haii"
+  ]
+  const greet = salam[Math.floor(Math.random() * salam.length)]
+  m.reply(
+    `${greet}, selamat ${waktu} @${m.sender.split("@")[0]} 💫\n` +
+    `Yuk intip menu ${botName} di bawah ini 🐢✨\n` +
+    `Gabung juga ke group @${setting.group.id} yaa~\n\n` +
+    teks +
+    `\n—\n` +
+    `Tips: ketik *${prefix}menu <kategori>* untuk lihat menu spesifik.`,
+    { contextInfo, withTag: true }
+  )
   /*
 if (["android","ios"].includes(m.user.device)) {
 const ppuser = await conn.profilePictureUrl(m.sender).catch(() => assets.defaultProfilePictureUrl || assets.defaultProfilePicture)
@@ -89,32 +112,36 @@ let menu = ``
 let numtag = 1
 if (tags == "null") {
 for (let tag of tagse) {
-menu += `\n*${tag.length > 7 ? "": "MENU "}${tag.toUpperCase()}*\n`;
+menu += `\n╭─〔 ${tag.length > 7 ? "" : "MENU "}${tag.toUpperCase()} 〕\n`;
 const filt_cmd = cmd.filter((mek) => mek.tag == tag);
 const map_cmd = await filt_cmd.map((mek) => mek.name);
 for (let j = 0; j < map_cmd.length; j++) {
-menu += `${numtag++}. \`\`\`${prefix}${map_cmd[j]}\`\`\`\n`;
+menu += `│ ${numtag++}. ${prefix}${map_cmd[j]}\n`;
 }
+menu += `╰──────────────\n`;
 }
-menu += `\n*ADVANCED*\n`;
-menu += `${numtag++}. >\n`
-menu += `${numtag++}. <\n`
-menu += `${numtag++}. $\n`
-menu += `${numtag++}. =>\n`
+menu += `\n╭─〔 ADVANCED 〕\n`;
+menu += `│ ${numtag++}. >\n`
+menu += `│ ${numtag++}. <\n`
+menu += `│ ${numtag++}. $\n`
+menu += `│ ${numtag++}. =>\n`
+menu += `╰──────────────\n`
 } else {
-menu += `\n*${tags.length > 7 ? "": "MENU "}${tags.toUpperCase()}*\n`;
+menu += `\n╭─〔 ${tags.length > 7 ? "" : "MENU "}${tags.toUpperCase()} 〕\n`;
 const filt_cmd = cmd.filter((mek) => mek.tag == tags);
 const map_cmd = await filt_cmd.map((mek) => mek.name);
 for (let j = 0; j < map_cmd.length; j++) {
-menu += `${numtag++}. \`\`\`${prefix}${map_cmd[j]}\`\`\`\n`;
+menu += `│ ${numtag++}. ${prefix}${map_cmd[j]}\n`;
 }
+menu += `╰──────────────\n`;
 
 if (tags == "owner") {
-menu += `\n*ADVANCED*\n`;
-menu += `${numtag++}. >\n`
-menu += `${numtag++}. <\n`
-menu += `${numtag++}. $\n`
-menu += `${numtag++}. =>\n`
+menu += `\n╭─〔 ADVANCED 〕\n`;
+menu += `│ ${numtag++}. >\n`
+menu += `│ ${numtag++}. <\n`
+menu += `│ ${numtag++}. $\n`
+menu += `│ ${numtag++}. =>\n`
+menu += `╰──────────────\n`
 }
 }
 

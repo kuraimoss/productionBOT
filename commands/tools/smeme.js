@@ -17,7 +17,7 @@ module.exports = {
         if(m.quoted && (m.quoted.mtype == 'stickerMessage' || m.quoted.mtype == 'imageMessage')){
             await m.reply(response.wait)
             const upload = await tool.ugu(await m.quoted.download())
-            packInfo = { packname: setting.packInfo.packname, author: setting.packInfo.author + `+${m.sender.split("@")[0]}\n ▸ 𝗖𝗿𝗲𝗮𝘁𝗲𝗱 : ${thund} ${wktud}` };
+            packInfo = { packname: setting.packInfo.packname, author: getPackAuthor(conn) + `+${m.sender.split("@")[0]}\n ▸ 𝗖𝗿𝗲𝗮𝘁𝗲𝗱 : ${thund} ${wktud}` };
             const url = await encodeurl(`https://api.memegen.link/images/custom/${t1}/${t2}.png?background=${upload.result.url}`)
             const stickerBuff = await sticker(await tool.getBuffer(url), {
                 isImage: true,
@@ -30,7 +30,7 @@ module.exports = {
         else if(!m.quoted && (m.type == 'stickerMessage' || m.type == 'imageMessage')){
             await m.reply(response.wait)
             const upload = await tool.ugu(await m.download())
-            packInfo = { packname: setting.packInfo.packname, author: setting.packInfo.author + `+${m.sender.split("@")[0]}\n ▸ 𝗖𝗿𝗲𝗮𝘁𝗲𝗱 : ${thund} ${wktud}` };
+            packInfo = { packname: setting.packInfo.packname, author: getPackAuthor(conn) + `+${m.sender.split("@")[0]}\n ▸ 𝗖𝗿𝗲𝗮𝘁𝗲𝗱 : ${thund} ${wktud}` };
             const stickerBuff = await sticker(await tool.getBuffer(`https://api.memegen.link/images/custom/${t1}/${t2}.png?background=${upload.result.url}`), {
                 isImage: true,
                 withPackInfo: true,

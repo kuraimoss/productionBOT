@@ -17,7 +17,7 @@ module.exports = {
         if (q.length > 250) return m.reply(`Karakter terbatas, max 250!`)
         thund = moment.tz("Asia/Jakarta").format("DD/MM/YYYY")
         wktud = moment.tz("Asia/Jakarta").format("HH:mm:ss")
-        let packInfo = { packname: setting.packInfo.packname, author: setting.packInfo.author + `+${m.sender.split("@")[0]}\n ▸ 𝗖𝗿𝗲𝗮𝘁𝗲𝗱 : ${thund} ${wktud}` };
+        let packInfo = { packname: setting.packInfo.packname, author: getPackAuthor(conn) + `+${m.sender.split("@")[0]}\n ▸ 𝗖𝗿𝗲𝗮𝘁𝗲𝗱 : ${thund} ${wktud}` };
         if (command == "brat") {
             const url = await encodeurl(`https://aqul-brat.hf.space/?text=${encodeURIComponent(q)}`)
             let stickerBuff = await sticker(await tool.getBuffer(url), {

@@ -18,8 +18,28 @@ module.exports = {
     	const times = await speed()
 		let text = "";
 		if (["ping","test"].includes(m.command)) {
-		m.reply("measuring ping..")
-		m.reply("*PING :* `"+ parseInt(await speed() - times) +" ms`")
+		const samples = [];
+		const tStart = Date.now();
+		const dat = await m.reply("*PING :* `...`");
+		let prevMs = Date.now() - tStart;
+		samples.push(prevMs);
+		for (let i = 1; i <= 5; i++) {
+			const t0 = Date.now();
+			await conn.sendMessage(
+				m.from,
+				{ text: `*PING :* \`${Math.round(prevMs)} ms\``, edit: dat.key },
+				{ quoted: m }
+			);
+			prevMs = Date.now() - t0;
+			samples.push(prevMs);
+			if (i < 5) await tool.sleep(1000);
+		}
+		const avg = samples.reduce((sum, v) => sum + v, 0) / samples.length;
+		await conn.sendMessage(
+			m.from,
+			{ text: `*PING :* \`${Math.round(avg)} ms\``, edit: dat.key },
+			{ quoted: m }
+		);
 		} else {
 		const lat = await speed() - times
 		text += `HOST:\n`;

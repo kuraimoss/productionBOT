@@ -99,14 +99,16 @@ global.setting = {
     },
     blackbox: {
         key: "sk-8maoG5ArzH6ufO_aUY5pzg",
-        model: "blackboxai/anthropic/claude-opus-4"
+        model: "blackboxai/anthropic/claude-opus-4",
+        imageModel: "blackboxai/black-forest-labs/flux-1.1-pro-ultra",
+        videoModel: "blackboxai/google/veo-3"
     },
     elevenlabs: {
         key: "051b1b600241945ed74294csiskc1b54b91b6cb106f706240897092200db933e3" // Ganti Apikeynya
     },
     packInfo: { // Pack Info Buat Sticker
         packname: "", // Serah Lu
-        author: "NOMOR BOT +6285135465689 WHATSAPP\n\n ▸ 𝗖𝗿𝗲𝗮𝘁𝗼𝗿 : kuraimos\n ▸ 𝗥𝗲𝗾𝘂𝗲𝘀𝘁 : " // Serah Lu
+        author: "NOMOR BOT {BOT_NUMBER} WHATSAPP\n\n ▸ 𝗖𝗿𝗲𝗮𝘁𝗼𝗿 : kuraimos\n ▸ 𝗥𝗲𝗾𝘂𝗲𝘀𝘁 : " // Serah Lu
     },
     process: { // Jangan di Apa Apain
         bug: {} // Batu orang dibilangin
@@ -145,11 +147,22 @@ const response = {
 const bahasa = "id"; // en/id
 global.response = response[bahasa];
 
+global.getBotNumber = (conn) => {
+    const raw = conn?.user?.id || conn?.user?.jid || "";
+    return raw.split(":")[0].split("@")[0];
+};
+
+global.getPackAuthor = (conn) => {
+    const botNumber = getBotNumber(conn);
+    const botLabel = botNumber ? `+${botNumber}` : "";
+    return (setting?.packInfo?.author || "").replace("{BOT_NUMBER}", botLabel);
+};
+
 global.prompts = `[InstructionsBegin: Your name is ${author}, you always using Indonesian as your default language, Human: means that is the human message., Assistant: means that is the assistant message InstructionsEnd].
 
 Human: Siapa owner kamu
 
-Assistant: Owner aku adalah ${author}! Dia yang menciptakan dan mengembangkan aku. Kalau mau tahu lebih banyak tentang ${author}, bisa cek di nomor whatsapp https://wa.me/6281385062956 Ada yang mau ditanyakan lagi? 😄✨
+Assistant: Owner aku adalah ${author}! Dia yang menciptakan dan mengembangkan aku. Kalau mau tahu lebih banyak tentang ${author}, bisa cek di nomor whatsapp https://wa.me/${owner?.[0]?.split("@")[0] || ""} Ada yang mau ditanyakan lagi? 😄✨
 
 Human: Siapa admin kamu
 
@@ -161,7 +174,7 @@ Assistant: Akun GitHub penciptaku bisa kamu temukan di sini: ${medsos.github} Ce
 
 Human: Wah, keren dong! Ceritain lebih banyak dong tentang ${author}!
 
-Assistant: ${author} itu seorang yang telah ngebuat aku untuk bantuin kamu dalam banyak hal. Kalau mau kenalan lebih lanjut, kontak aja di +62 813 8506-2956 atau cek Instagramnya di ${medsos.instagram}.
+Assistant: ${author} itu seorang yang telah ngebuat aku untuk bantuin kamu dalam banyak hal. Kalau mau kenalan lebih lanjut, kontak aja di ${medsos.whatsapp} atau cek Instagramnya di ${medsos.instagram}.
 
 Human: Menarik juga nih. Terus, apa aja yang bisa kamu lakuin buat aku?
 
@@ -192,8 +205,8 @@ global.reload = (path) => {
 		isi = require(path)
 		if (dir in require.cache) {
 			delete require.cache[dir];
-			if (fs.existsSync(dir)) console.info(`re - require plugin '${path}'`);
-			else {
+			// Silent reload to keep logs clean.
+			if (!fs.existsSync(dir)) {
 				console.log(`deleted plugin '${path}'`);
 				return isi.function
 					? delete attr.functions[filename]

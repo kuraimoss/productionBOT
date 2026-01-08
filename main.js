@@ -40,6 +40,27 @@ const { addhit } = require("./database/hit.js");
 require('./lib/proto')
 const pathContacts = "./session/contacts.json"
 
+const LOG = {
+    line() {
+        console.log(chalk.gray("----------------------------------------------"));
+    },
+    header() {
+        console.log("");
+        this.line();
+        console.log(chalk.white.bold("kuraBOT Service"));
+        this.line();
+    },
+    status(label, msg, color) {
+        const tag = chalk[color](`[ ${label} ]`);
+        console.log(`${tag} ${chalk.white(msg)}`);
+    },
+};
+let hasBanner = false;
+let hasSync = false;
+let hasOnline = false;
+let hasAuth = false;
+let hasReady = false;
+
 const ReadFitur = () => {
     let pathdir = path.join(__dirname, "./commands");
     let fitur = fs.readdirSync(pathdir);
@@ -49,7 +70,11 @@ const ReadFitur = () => {
             plugins.function ? (attr.functions[filename] = plugins) : (attr.commands[filename] = plugins);
         }
     }
-    console.log("Command loaded successfully");
+    if (!hasBanner) {
+        LOG.header();
+        hasBanner = true;
+    }
+    LOG.status("OK", "Commands loaded", "greenBright");
 };
 ReadFitur();
 
@@ -158,14 +183,31 @@ const connect = async() => {
             console.info("Loading QR Code for WhatsApp, Please Scan...")
             qrcode.generate(update.qr, { small: true })
         } else if (update.connection == 'connecting') {
-            console.log(chalk.yellow("Connecting.."))
+            LOG.status("INFO", "Connecting to WhatsApp", "cyan");
         } else if (update.connection === 'open') {
-            console.log(chalk.green('Connected ' + conn.user.id));
+            if (!hasAuth) {
+                LOG.line();
+                LOG.status("AUTH", "Session authenticated", "magentaBright");
+                console.log(chalk.magentaBright(conn.user.id));
+                LOG.line();
+                hasAuth = true;
+            }
+            if (!hasReady) {
+                LOG.status("READY", "kuraBOT is fully operational", "greenBright");
+                hasReady = true;
+            }
         } else if (update.connection === 'close') {
-            console.log(chalk.red('Disconnected!'));
+            LOG.status("ERR", "Disconnected", "redBright");
             connect();
         } else {
-            console.log('Connection Update :', update)
+            if (update?.receivedPendingNotifications && !hasSync) {
+                LOG.status("INFO", "Syncing pending notifications", "cyan");
+                hasSync = true;
+            }
+            if (update?.isOnline && !hasOnline) {
+                LOG.status("OK", "Network status: Online", "greenBright");
+                hasOnline = true;
+            }
         } 
     });
   
