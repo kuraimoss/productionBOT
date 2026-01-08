@@ -57,7 +57,22 @@ module.exports = {
                                 .filter(Boolean)
                                 .map((s) => String(s).toLowerCase())
                         );
+                        const cmdDescMap = new Map();
+                        for (const cmd of availableCommands) {
+                            const desc = cmd?.desc ? String(cmd.desc) : "";
+                            const aliases = Array.isArray(cmd.cmd) ? cmd.cmd : cmd.cmd ? [cmd.cmd] : [];
+                            for (const a of aliases) {
+                                if (!a) continue;
+                                cmdDescMap.set(String(a).toLowerCase(), desc);
+                            }
+                        }
                         const availableCmdPreview = [...availableCmdSet].sort().slice(0, 40).join(", ");
+                        const cmdMetaPreview = [...availableCmdSet]
+                            .sort()
+                            .slice(0, 25)
+                            .map((c) => `${prefixChar}${c} - ${cmdDescMap.get(c) || ""}`.trim())
+                            .filter((l) => l && !l.endsWith("-"))
+                            .join("\n");
                         
                         const systemPrompt = [
                             "Gunakan bahasa Indonesia untuk semua jawaban.",
@@ -68,6 +83,7 @@ module.exports = {
                             "Saat memberi saran, sesuaikan dengan kebutuhan user dan peran user (jangan sarankan fitur owner/admin jika user bukan owner/admin).",
                             `Jangan pernah menyebut/menyarankan command atau fitur yang tidak ada. Jika user meminta fitur yang tidak tersedia, bilang tidak tersedia dan arahkan ke ${prefixChar}menu.`,
                             availableCmdPreview ? `Command yang tersedia (ringkas): ${availableCmdPreview}.` : "",
+                            cmdMetaPreview ? `Deskripsi command (ringkas, wajib akurat):\n${cmdMetaPreview}` : "",
                             `Jika diperlukan, berikan info medsos ini (medsos owner/pemilik bot): Instagram ${medsos?.instagram}, WhatsApp ${medsos?.whatsapp}, GitHub ${medsos?.github}, Email ${medsos?.email}.`,
                             "Belajar dari history chat untuk konteks jawaban berikutnya.",
                             prompts ? `Konteks tambahan: ${prompts}` : ""
@@ -131,7 +147,36 @@ module.exports = {
                                 removed += 1;
                                 return false;
                             });
-                            output = lines.join("\n").trim();
+                            output = lines.join("\n");
+
+                            // Fix wrong descriptions for commands: `.cmd - <desc>` or `.cmd atau .cmd2 - <desc>`
+                            const descLineRegex = new RegExp(
+                                `^\\s*([•\\-\\*]\\s*)?` +
+                                    `\`?${escapedPrefix}([a-z0-9_]+)\`?` +
+                                    `(?:\\s+(?:atau|or)\\s+\`?${escapedPrefix}([a-z0-9_]+)\`?)?` +
+                                    `\\s*-\\s*(.+)$`,
+                                "i"
+                            );
+                            output = output
+                                .split(/\r?\n/)
+                                .map((line) => {
+                                    const mDesc = line.match(descLineRegex);
+                                    if (!mDesc) return line;
+                                    const bullet = mDesc[1] || "";
+                                    const c1 = String(mDesc[2]).toLowerCase();
+                                    const c2 = mDesc[3] ? String(mDesc[3]).toLowerCase() : null;
+                                    if (!availableCmdSet.has(c1)) return "";
+                                    if (c2 && !availableCmdSet.has(c2)) return "";
+                                    const trueDesc = cmdDescMap.get(c1) || "";
+                                    const left = c2
+                                        ? `${prefixChar}${c1} atau ${prefixChar}${c2}`
+                                        : `${prefixChar}${c1}`;
+                                    if (!trueDesc) return `${bullet}${left}`.trimEnd();
+                                    return `${bullet}${left} - ${trueDesc}`.trimEnd();
+                                })
+                                .filter((l) => l !== "")
+                                .join("\n")
+                                .trim();
 
                             if ((removed > 0 || replaced > 0) && !new RegExp(`${escapedPrefix}menu\\b`, "i").test(output)) {
                                 output = `${output}\n\nKetik *${prefixChar}menu* untuk lihat fitur yang tersedia.`;
