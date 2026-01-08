@@ -83,6 +83,7 @@ module.exports = {
                             "Saran fitur hanya diberikan jika user butuh bantuan/bingung atau saat chat pertama.",
                             "Saat memberi saran, sesuaikan dengan kebutuhan user dan peran user (jangan sarankan fitur owner/admin jika user bukan owner/admin).",
                             `Jangan pernah menyebut/menyarankan command atau fitur yang tidak ada. Jika user meminta fitur yang tidak tersedia, bilang tidak tersedia dan arahkan ke ${prefixChar}menu.`,
+                            "Jika memberi link apa pun, gunakan domain resmi dan jangan mengarang domain. Jika tidak yakin, jelaskan bahwa kamu tidak punya link yang valid.",
                             availableCmdPreview ? `Command yang tersedia (ringkas): ${availableCmdPreview}.` : "",
                             cmdMetaPreview ? `Deskripsi command (ringkas, wajib akurat):\n${cmdMetaPreview}` : "",
                             `Jika diperlukan, berikan info medsos ini (medsos owner/pemilik bot): Instagram ${medsos?.instagram}, WhatsApp ${medsos?.whatsapp}, GitHub ${medsos?.github}, Email ${medsos?.email}.`,
@@ -189,6 +190,50 @@ module.exports = {
                             return output;
                         };
                         answerText = sanitizeCommandMentions(answerText);
+                        const fixPlatformLinks = (inputText, userText) => {
+                            if (!inputText) return inputText;
+                            const platforms = [
+                                { key: "whatsapp", keywords: ["whatsapp", "wa"], domains: ["wa.me", "api.whatsapp.com"] },
+                                { key: "instagram", keywords: ["instagram", "ig"], domains: ["instagram.com"] },
+                                { key: "github", keywords: ["github"], domains: ["github.com"] },
+                                { key: "telegram", keywords: ["telegram", "tg"], domains: ["t.me", "telegram.me", "telegram.org"] },
+                                { key: "youtube", keywords: ["youtube", "yt"], domains: ["youtube.com", "youtu.be"] },
+                                { key: "tiktok", keywords: ["tiktok"], domains: ["tiktok.com", "vt.tiktok.com", "vm.tiktok.com"] },
+                                { key: "facebook", keywords: ["facebook", "fb"], domains: ["facebook.com", "fb.watch"] },
+                                { key: "twitter", keywords: ["twitter", "x"], domains: ["twitter.com", "x.com"] },
+                                { key: "spotify", keywords: ["spotify"], domains: ["open.spotify.com", "spotify.com"] },
+                            ];
+                            const textLower = String(userText || "").toLowerCase();
+                            const urlRegex = /https?:\/\/[^\s)]+/gi;
+                            return String(inputText).replace(urlRegex, (rawUrl) => {
+                                let parsed;
+                                try {
+                                    parsed = new URL(rawUrl);
+                                } catch {
+                                    return rawUrl;
+                                }
+                                const host = parsed.hostname.toLowerCase();
+                                for (const p of platforms) {
+                                    const mention = p.keywords.some((k) => textLower.includes(k));
+                                    const hostHasKeyword = p.keywords.some((k) => host.includes(k));
+                                    const isAllowed = p.domains.includes(host) || p.domains.some((d) => host.endsWith("." + d));
+                                    if ((mention || hostHasKeyword) && !isAllowed && hostHasKeyword) {
+                                        parsed.hostname = p.domains[0];
+                                        return parsed.toString();
+                                    }
+                                }
+                                return rawUrl;
+                            });
+                        };
+                        const normalizeWhatsappLinks = (inputText) => {
+                            if (!inputText) return inputText;
+                            return String(inputText)
+                                .replace(/https?:\/\/wa\.menu\b/gi, "https://wa.me")
+                                .replace(/\bwa\.menu\b/gi, "wa.me")
+                                .replace(/\bapi\.menu\.menu\b/gi, "api.whatsapp.com");
+                        };
+                        answerText = fixPlatformLinks(answerText, text);
+                        answerText = normalizeWhatsappLinks(answerText);
 
                         const isFirstChat = wasEmptyHistory;
                         const helpRegex = /(bingung|bantuan|help|menu|fitur|command|perintah|cara|gimana|bagaimana|nggak ngerti|gak ngerti|ga ngerti|tutorial|panduan|petunjuk)/i;
