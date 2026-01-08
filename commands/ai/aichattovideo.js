@@ -4,6 +4,7 @@ module.exports = {
     cmd: ["aivideo"],
     category: "ai",
     desc: "Membuat video dari prompt teks (AI text-to-video).",
+    disabled: true,
     query: true,
     async handler(m, { conn, q }) {
         await m.reply(response.wait)

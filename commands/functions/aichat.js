@@ -36,8 +36,9 @@ module.exports = {
                             db.data.openai[m.sender] = [];
                             await db.write()
                         }
-                        if (db.data.openai[m.sender].length >= 10) {
-                            db.data.openai[m.sender] = [];
+                        const historyLimit = 8;
+                        if (db.data.openai[m.sender].length >= historyLimit) {
+                            db.data.openai[m.sender] = db.data.openai[m.sender].slice(-historyLimit);
                             await db.write()
                         }
                         const wasEmptyHistory = db.data.openai[m.sender].length === 0;
@@ -91,11 +92,12 @@ module.exports = {
 
                         let messages = [
                             { role: "system", content: systemPrompt },
-                            ...(db.data.openai[m.sender].map((msg) => ({ role: msg.role, content: msg.content })) || []),
-                            { 'role': 'user', 'content': text },
-                            { 'role': 'assistant', 'content': m.quoted ? m.quoted.text : "" },
-                            { 'role': 'user', 'content': text }
+                            ...(db.data.openai[m.sender].map((msg) => ({ role: msg.role, content: msg.content })) || [])
                         ];
+                        if (m.quoted && m.quoted.text) {
+                            messages.push({ role: "assistant", content: m.quoted.text });
+                        }
+                        messages.push({ role: "user", content: text });
     
 
                         let data;
@@ -115,6 +117,9 @@ module.exports = {
                                 role: 'assistant',
                                 content: data.data.answer.trim().replace('Assistant:', '').trim()
                             });
+                            if (db.data.openai[m.sender].length > historyLimit) {
+                                db.data.openai[m.sender] = db.data.openai[m.sender].slice(-historyLimit);
+                            }
                             await db.write()
                         }
 
