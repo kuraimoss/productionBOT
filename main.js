@@ -139,7 +139,7 @@ const connect = async() => {
                 pino({ level: 'fatal' }).child({ level: 'fatal' })
             ),
         },
-        browser: ['Linux', 'Safari', '17.0'],
+        browser: ['kuraBOT', 'Safari', '17.0'],
         version,
         patchMessageBeforeSending: (msg) => {
             const isViewOnceMessage =
