@@ -2,6 +2,9 @@
 
 Bot WhatsApp multi-device berbasis Baileys dengan fitur AI, downloader media, tools, dan utilitas grup.
 
+## Lisensi
+MIT — lihat `LICENSE`.
+
 ## Fitur Utama
 - Menu & bantuan per kategori (`.menu`, `.help`)
 - AI chat (auto/interactive) + text-to-image (Blackbox)
