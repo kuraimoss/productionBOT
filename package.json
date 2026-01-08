@@ -5,7 +5,7 @@
     "main": "index.js",
     "scripts": {
         "start": "node index.js",
-        "postinstall": "patch-package"
+        "postinstall": "patch-package && node -e \"const fs=require('fs');const p='node_modules/@zackmans/baileys/lib/index.js';if(fs.existsSync(p)){let t=fs.readFileSync(p,'utf8');let lines=t.split(/\\\\r?\\\\n/).filter(l=>!(l.includes('Modified Baileys')||l.includes('modified Baileys')||l.includes('@zckmans')||l.includes('thank you for using my modified Baileys')||l.includes('------------------------------')||l.includes('import chalk')));fs.writeFileSync(p,lines.join('\\\\n'),'utf8');}\""
     },
     "author": "kuraimos",
     "license": "MIT",
