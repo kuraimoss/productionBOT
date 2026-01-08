@@ -5,7 +5,6 @@ function clockString(ms) {
 let h = Math.floor(ms / 3600000)
 let m = Math.floor(ms / 60000) % 60
 let s = Math.floor(ms / 1000) % 60
-console.log({ ms, h, m, s })
 return [h, m, s].map(v => v.toString().padStart(2, 0)).join(':')
 }
 
@@ -74,9 +73,8 @@ ${gbawah} Internet OUT : ${netsOut}
 m.reply(txt).then(async(dat) => {
 conn.sendMessage(m.from, { text: txt.replace("process", parseInt(await speed() - times) + " ms"), edit: dat.key }, { quoted: m })
 })
-console.log(OS)
 } catch (e) {
-console.log(e)
+console.error("Status: error", e?.message || e)
 m.reply(String(e))
 }
 }}

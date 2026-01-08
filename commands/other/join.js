@@ -11,12 +11,13 @@ const { isOwner } = m.attribute
 if (!/whatsapp/.test(text) && text.split("whatsapp.com/")[1] == undefined) return m.reply(response.errorlink);
 
 try {
-console.log(text.split("/")[3].split(' ')[0].split("?")[0])
-const accept = await conn.groupGetInviteInfo(text.split("/")[3].split(' ')[0].split("?")[0])
+const inviteCode = text.split("/")[3].split(' ')[0].split("?")[0]
+console.log("Join: invite code", inviteCode)
+const accept = await conn.groupGetInviteInfo(inviteCode)
 if (isOwner) {
 if (m.type == "templateButtonReplyMessage" && args[2] == "reject") return conn.sendMessage(args[1], {text: `Bot is not accepted by owner to be added to your group\n\n${args[0]}`})
 if (m.type == "templateButtonReplyMessage" && args[2] == "accept") await conn.sendMessage(args[1], {text: `Indonesia\nBot berhasil ditambahkan ke group anda\n\n${args[0]}\n\nEnglish\nThe bot has been successfully added to your group`})
-const join = await conn.groupAcceptInvite(text.split("/")[3].split(' ')[0].split("?")[0]);
+const join = await conn.groupAcceptInvite(inviteCode);
 m.reply(`Succsess Join Group ${join}`);
 } else {
 
@@ -49,7 +50,7 @@ buttons
 
 }
 } catch(e) {
-console.log(e)
+console.error("Join: error", e?.message || e)
 m.reply('Link Group Not Valid')
 }
 
