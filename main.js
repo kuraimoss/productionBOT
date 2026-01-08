@@ -89,6 +89,24 @@ const question = (text) => {
     })
 };
 
+const safeReadJsonFile = (filePath, fallbackValue) => {
+    try {
+        if (!fs.existsSync(filePath)) return fallbackValue;
+        const raw = fs.readFileSync(filePath, "utf-8");
+        if (!raw || !raw.trim()) return fallbackValue;
+        return JSON.parse(raw);
+    } catch (e) {
+        try {
+            const backupPath = `${filePath}.corrupt.${Date.now()}.bak`;
+            fs.copyFileSync(filePath, backupPath);
+        } catch {}
+        try {
+            fs.writeFileSync(filePath, JSON.stringify(fallbackValue, null, 2));
+        } catch {}
+        return fallbackValue;
+    }
+};
+
 const normalizeWhatsappNumber = (input) => {
     const digits = String(input || "").replace(/\D/g, "");
     if (!digits) return "";
@@ -232,7 +250,7 @@ const connect = async() => {
   
   // contacts
 	if (fs.existsSync(pathContacts)) {
-        conn.contacts = JSON.parse(fs.readFileSync(pathContacts, 'utf-8'));
+        conn.contacts = safeReadJsonFile(pathContacts, {});
 	} else {
 	    fs.writeFileSync(pathContacts, JSON.stringify({}));
 	}
