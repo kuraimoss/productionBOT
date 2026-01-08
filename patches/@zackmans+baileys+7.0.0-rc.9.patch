@@ -1,9 +1,10 @@
 diff --git a/node_modules/@zackmans/baileys/lib/index.js b/node_modules/@zackmans/baileys/lib/index.js
+index 1a2b3c4..5d6e7f8 100644
 --- a/node_modules/@zackmans/baileys/lib/index.js
 +++ b/node_modules/@zackmans/baileys/lib/index.js
-@@
+@@ -12,6 +12,0 @@
 -import chalk from "chalk"
--console.log(chalk.magentaBright.bold("\nƒo\" Modified Baileys ƒo\"\n"));
+-console.log(chalk.magentaBright.bold("\n✨ Modified Baileys ✨\n"));
 -console.log(chalk.whiteBright("Hi, thank you for using my modified Baileys ^-^"));
 -console.log(chalk.cyan("Telegram: ") + chalk.greenBright("@zckmans"));
 -console.log(chalk.gray("------------------------------\n"));

@@ -139,7 +139,7 @@ const connect = async() => {
                 pino({ level: 'fatal' }).child({ level: 'fatal' })
             ),
         },
-        browser: ['Ubuntu', 'Chrome', '20.0.04'],
+        browser: ['Linux', 'Safari', '17.0'],
         version,
         patchMessageBeforeSending: (msg) => {
             const isViewOnceMessage =
