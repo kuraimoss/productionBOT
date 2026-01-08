@@ -127,6 +127,7 @@ param: "<category>",
 cmd: ["menu"],
 stickCmd: ["auX9iOuSptklvWqmW2ynWtzLZq7lNcvhFTLWIsDxkvQ="],
 category: "other",
+desc: "Menampilkan daftar menu/fitur bot berdasarkan kategori.",
 async handler(m, { conn, prefix, q, args, isCreator }) {
 const cmd = [];
 Object.values(attr.commands)

@@ -4,6 +4,7 @@ name: ["githubstalk","ghstalk"],
 param: "<query>",
 cmd: ["githubstalk","ghstalk"],
 category: "stalking",
+desc: "Stalk profil GitHub berdasarkan username (follower, repo, bio, dll).",
 query: true,
 async handler(m, { conn, q, command }) {
 await m.reply(response.wait)

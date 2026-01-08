@@ -6,6 +6,7 @@ name: ["delcmd","df"],
 param: "<filename>",
 cmd: ["delcommand", "delcmd", "df"],
 category: "owner",
+desc: "Menghapus file command/file tertentu dari server (owner).",
 owner: true,
 async handler(m, { conn, q, prefix, command }) {
 if (!q) throw `where is the text?\n\nexample: ${prefix + command} other/menu.js`

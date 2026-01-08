@@ -3,7 +3,7 @@ module.exports = {
 	param: "<tag/reply chat>",
 	cmd: ["promote", "pm"],
 	category: "group",
-	desc: "To promote someone`s position to admin",
+	desc: "Mengangkat member menjadi admin di grup.",
 	group: true,
 	admin: true,
 	botadmin: true,

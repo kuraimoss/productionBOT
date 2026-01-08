@@ -3,7 +3,7 @@ module.exports = {
     param: '<reply audio/video>',
     cmd: ['whatmusic'],
     category: 'search',
-    desc: 'Search song title',
+    desc: 'Mendeteksi judul lagu dari audio/video yang direply.',
     quoted: 'reply audio/video!',
     async handler(m, {conn}){
         if(m.quoted && (m.quoted.mtype == 'audioMessage' || m.quoted.mtype == 'videoMessage')){

@@ -3,7 +3,7 @@ module.exports = {
 	param: "<tag/reply chat>",
 	cmd: ["kick"],
 	category: "group",
-	desc: "kick members group",
+	desc: "Mengeluarkan member dari grup (kick).",
 	group: true,
 	botadmin: true,
 	admin: true,

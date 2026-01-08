@@ -6,6 +6,7 @@ name: 'pinterest',
 param: '<query>',
 cmd: ['pinterest','pin','pint'],
 category: 'search',
+desc: 'Mencari gambar di Pinterest berdasarkan kata kunci dan menampilkan hasilnya.',
 query: true,
 async handler(m, {conn, q}){
 await m.reply(response.wait)

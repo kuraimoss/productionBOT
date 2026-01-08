@@ -3,6 +3,7 @@ module.exports = {
     param: "<url>",
     cmd: ["ytmp4"],
     category: "media",
+    desc: "Download video YouTube (MP4); bisa pilih kualitas dengan format `url|1080`.",
     query: true,
     url: true,
     async handler(m, { conn, q, command }) {

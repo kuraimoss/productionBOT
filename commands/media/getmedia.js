@@ -9,6 +9,7 @@ module.exports = {
     name: 'getmedia',
     cmd: ['getmedia','getmstick'],
     category: 'media',
+    desc: "Mengambil media dari URL, atau membuat stiker dari URL (getmstick).",
     url: true,
     async handler(m, {conn, command, text}){
         if (command == "getmstick") {

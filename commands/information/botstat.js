@@ -13,7 +13,7 @@ module.exports = {
 	name: "botstatus",
 	cmd: ["botstatus","botstat","botstats","bot","ping","test"],
 	category: "information",
-	desc: "Bot status",
+	desc: "Menampilkan status bot (ping, runtime) dan info host/server.",
 	async handler(m, {conn}) {
     	const times = await speed()
 		let text = "";

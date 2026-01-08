@@ -4,6 +4,7 @@ module.exports = {
 name: "antibot",
 antibot: true,
 function: true,
+desc: "Fungsi antibot: verifikasi captcha untuk mencegah pesan dari bot/spam (block/kick).",
 async handler(m, { conn, isBotAdmin, isAdmin, isCreator, command }) {
 await db.read()
 if (m.attribute.isBot) {

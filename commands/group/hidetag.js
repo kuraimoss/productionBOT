@@ -3,6 +3,7 @@ module.exports = {
 	param: "<text/reply chat>",
 	cmd: ["hidetag"],
 	category: "group",
+	desc: "Kirim pesan/forward media dengan mention semua member tanpa terlihat (hidetag).",
 	group: true,
 	admin: true,
 	async handler(m, { conn, text, isMedia }) {

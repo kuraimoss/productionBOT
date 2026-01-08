@@ -3,7 +3,7 @@ module.exports = {
 	param: "<tag/reply chat>",
 	cmd: ["demote", "dm"],
 	category: "group",
-	desc: "To demote someone`s position to member",
+	desc: "Menurunkan admin menjadi member di grup.",
 	group: true,
 	admin: true,
 	botadmin: true,

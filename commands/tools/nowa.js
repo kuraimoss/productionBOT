@@ -3,6 +3,7 @@ module.exports = {
     cmd: ['nowa'],
     param: "<number>",
     category: "tools",
+    desc: "Generate & cek nomor WhatsApp dari pola angka menggunakan 'x' (contoh: 62812xxxxxx).",
     query: `Enter your number!\nExample : #nowa 628956190835xx`,
     async handler(m, {q,conn}){
       const moment = require('moment-timezone');

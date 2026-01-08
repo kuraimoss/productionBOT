@@ -3,7 +3,7 @@ module.exports = {
 name: "dashboard",
 cmd: ["dashboard"],
 category: "information",
-desc: "show command statistic",
+desc: "Menampilkan statistik command yang paling sering digunakan.",
 async handler(m, { conn }) {
 const { showhit } = require("../../database/hit");
 const hit = await showhit();

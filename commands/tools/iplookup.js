@@ -3,6 +3,7 @@ name: 'iplookup',
 cmd: ['iplookup'],
 param: "<ip>",
 category: "tools",
+desc: "Mengecek detail informasi IP (negara, ISP, lokasi) dan mengirim titik lokasi.",
 query: true,
 async handler(m, {args,conn}){
 

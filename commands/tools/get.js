@@ -4,6 +4,7 @@ name: "get",
 param: "<url>",
 cmd: ["get"],
 category: "tools",
+desc: "Mengambil konten dari URL (JSON/teks) lalu menampilkannya.",
 query: true,
 url: true,
 async handler(m, { conn, args }) {

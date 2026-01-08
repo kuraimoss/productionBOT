@@ -3,6 +3,7 @@ name: ["twdl","twitter"],
 param: "<url>",
 cmd: ["twdl","twitter"],
 category: "media",
+desc: "Download media Twitter/X dari link.",
 query: true,
 url: true,
 async handler(m, { conn, q, args }) {

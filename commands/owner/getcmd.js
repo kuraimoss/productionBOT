@@ -6,6 +6,7 @@ name: ["getcmd","gf"],
 param: "<filename>",
 cmd: ["getcommand", "getcmd", "gf"],
 category: "owner",
+desc: "Mengambil isi file atau mengirim file sebagai dokumen (owner).",
 owner: true,
 async handler(m, { conn, q, prefix, command }) {
 const args = m.body.trim().split(/ +/).slice(1)

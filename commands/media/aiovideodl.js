@@ -3,6 +3,7 @@ name: ["aiovideodl","aio"],
 param: "<url>",
 cmd: ["aiovideodl","aiovdl","aio"],
 category: "media",
+desc: "Download video dari berbagai platform (IG/FB/Twitter/X/TikTok) lewat link.",
 query: true,
 url: true,
 async handler(m, { conn, q, args }) {

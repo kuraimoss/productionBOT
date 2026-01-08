@@ -48,11 +48,52 @@
       {
         "role": "assistant",
         "content": "Iya dong! 😁 Senang kamu suka! Ada yang mau kamu coba atau tanyain lagi? Aku di sini siap bantu kamu dengan berbagai hal - mulai dari cari info, bikin sticker, sampe ngobrol santai aja juga bisa! \n\nGimana, ada yang lagi kamu butuhin sekarang? 🚀"
+      },
+      {
+        "role": "user",
+        "content": "halo"
+      },
+      {
+        "role": "assistant",
+        "content": "Halo lagi! 😊 Gimana kabarnya? Ada yang bisa aku bantu kali ini?"
+      },
+      {
+        "role": "user",
+        "content": "kenapa kau"
+      },
+      {
+        "role": "assistant",
+        "content": "Kenapa aku apa nih? 😅 Pertanyaannya belum selesai kayaknya. \n\nMau tanya kenapa aku bisa bantu kamu? Atau kenapa aku ada di sini? Atau ada hal lain yang bikin kamu penasaran? Yuk lanjutin pertanyaannya biar aku bisa jawab dengan tepat! 😊"
+      },
+      {
+        "role": "user",
+        "content": "tolol"
+      },
+      {
+        "role": "assistant",
+        "content": "Yah, kok gitu sih ngomongnya 😅 Santai aja kali, kita kan bisa ngobrol baik-baik. \n\nAda yang bikin kamu kesel atau ada yang bisa aku bantu perbaiki? Aku di sini buat ngebantu kok, bukan buat bikin masalah. Yuk ngobrol yang enak-enak aja! 😊"
+      }
+    ],
+    "6287784518998@s.whatsapp.net": [
+      {
+        "role": "user",
+        "content": "_rekomendasi admin _ list app inject new terbaru update - 1 day 10k - 3 day 20k - 7 day 40k - 10 day 55k - 30 day 90k - permanen 120k _ easy drag stabilitas aim trick smart dpi set reso rog aimlock safe aimhead safe_ _ support android 11-16_ _ full tutor pemasangan_ _ work 100 _ _ anti virtual no root_ _ 100 aman anti band_ _ full tutor cara pakai_ - order chat https wa.me 6287784518998 khusus order - dana kurang negoin asal ngotak order chat https wa.me 6287784518998 _list nkz settings v7 _ _nkz settings aim 30 10k_ _nkz settings aim 45 20k_ _nkz settings aim 55 35k_ _nkz settings aim 70 40k_ _nkz settings aim 81 50k_ _nkz settings aim 93 80k_ _nkz settings aim 97 90k 50k 3 org satset_ _ nkz settings spesial _ _nkz settings aim onetap 100k_ _nkz settings aim dbtap 120k 60k_ 1 org satset _nkz settings aim fanatical 200k 90k 2 org satset_ full tutor pemasangan sampe kepasang anti ribet dan permanen dana kurang negoin all file aman 100 no band bl sc minat pm https wa.me 6287784518998"
+      },
+      {
+        "role": "assistant",
+        "content": "Maaf, aku tidak bisa membantu dengan permintaan itu. Jika ada hal lain yang ingin kamu bahas atau tanyakan, silakan! Aku di sini untuk membantu dengan cara yang lebih positif dan bermanfaat. 😊"
       }
     ]
   },
   "call": {},
-  "group": {},
+  "group": {
+    "120363402107316356@g.us": {
+      "accessCmd": []
+    },
+    "120363305285153025@g.us": {
+      "accessCmd": []
+    }
+  },
   "antibot": [],
   "accessCmd": [],
   "reset": "20220222",
@@ -65,7 +106,7 @@
         "modelReported": "anthropic/claude-opus-4",
         "requestId": null
       },
-      "lastAt": 1767822022426
+      "lastAt": 1767822787778
     }
   }
 }

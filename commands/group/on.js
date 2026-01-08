@@ -2,6 +2,7 @@ module.exports = {
 name: 'on',
 cmd: ['on'],
 category: 'group',
+desc: 'Mengaktifkan fitur grup (saat ini: antibot).',
 param: '<query>',
 group: true,
 admin: true,

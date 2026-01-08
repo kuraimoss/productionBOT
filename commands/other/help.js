@@ -3,6 +3,7 @@ name: "help",
 param: "<command>",
 cmd: ["help"],
 category: "other",
+desc: "Menampilkan bantuan/detail untuk command tertentu (atau tampilkan menu).",
 //ignored: true,
 async handler(m, { conn, prefix, q, args }) {
 if (!q) return await require('./menu').handler(m, { conn, prefix, q, args })

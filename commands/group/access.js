@@ -2,6 +2,7 @@ module.exports = {
 name: ['access','accesscmd'],
 cmd: ['access','accesscmd'],
 category: 'group',
+desc: 'Memberi akses tertentu (mis. antibot/akses command) ke user yang dipilih di grup.',
 param: '<tag/reply chat>',
 group: true,
 admin: true,

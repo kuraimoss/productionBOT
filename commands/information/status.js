@@ -13,6 +13,7 @@ module.exports = {
 name: "status",
 cmd: ["status","stat","stats"],
 category: "information",
+desc: "Menampilkan status sistem (CPU/RAM/disk/jaringan) dan ping.",
 async handler(m, { conn, command }) {
 try {
 let NotDetect = 'Not Detect'

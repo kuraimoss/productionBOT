@@ -4,6 +4,7 @@ module.exports = {
     param: "<query>",
     cmd: ["play"],
     category: "media",
+    desc: "Cari video YouTube dari query lalu kirim audionya (MP3).",
     query: true,
     async handler(m, { conn, q, command }) {
         await m.reply(response.wait)

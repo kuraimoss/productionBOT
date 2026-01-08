@@ -2,7 +2,7 @@ module.exports = {
 	name: "revoke",
 	cmd: ["revoke", "revokelink"],
 	category: "group",
-	desc: "Used to revoke link group",
+	desc: "Reset / revoke link undangan grup (membuat link baru).",
 	group: true,
 	admin: true,
 	botadmin: true,

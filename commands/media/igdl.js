@@ -3,6 +3,7 @@ name: ["igdl","instagram"],
 param: "<url>",
 cmd: ["igdl","instagram"],
 category: "media",
+desc: "Download media Instagram dari link (post/reels/story yang didukung).",
 query: true,
 url: true,
 async handler(m, { conn, q, args }) {

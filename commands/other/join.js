@@ -3,7 +3,7 @@ name: "join",
 param: "<link group>",
 cmd: ["join"],
 category: "other",
-desc: "Adding bots to the group using the group link",
+desc: "Meminta bot join ke grup lewat link undangan (butuh persetujuan owner).",
 query: true,
 url: true,
 async handler(m, { conn, text, args }) {

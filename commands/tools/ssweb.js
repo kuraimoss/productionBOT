@@ -6,7 +6,7 @@ module.exports = {
   param: '<url>',
   cmd: ['ssweb'],
   category: 'tools',
-  desc: 'Take screenshot webpage',
+  desc: 'Screenshot halaman website dari URL.',
   query: true,
   url: true,
   async handler(m, {conn, text}){

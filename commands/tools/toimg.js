@@ -6,7 +6,7 @@ module.exports = {
 	param: "<reply sticker>",
 	cmd: ["toimg"],
 	category: "tools",
-	desc: "Change sticker to image",
+	desc: "Mengubah stiker menjadi gambar (atau video jika stiker animasi).",
 	quoted: { sticker: true },
 	async handler(m, { conn }) {
 		await m.reply(response.wait);

@@ -6,6 +6,7 @@ module.exports = {
     param: '<reply/send image>',
     cmd: ['smeme'],
     category: 'tools',
+    desc: 'Membuat stiker meme dari gambar dengan teks atas|bawah (format: teks1|teks2).',
     query: 'Wrong Format\nExample : .smeme Test|oke',
     async handler(m, {conn, q}){
         text = q.replace(/\?/g, '')

@@ -4,6 +4,7 @@ module.exports = {
     name: 'backup',
     cmd: ['backup'],
     category: 'owner',
+    desc: "Backup project bot menjadi file ZIP lalu kirim ke owner.",
     owner: true,
     async handler(m, {conn}){
         await m.reply(response.wait)

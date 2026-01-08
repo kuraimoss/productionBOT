@@ -4,7 +4,7 @@ module.exports = {
 name: 'listgroup',
 cmd: ['listgroup'],
 category: 'owner',
-desc: 'Get listgroup On the Bot Account',
+desc: "Menampilkan daftar semua grup yang diikuti bot.",
 owner: true,
 async handler(m, {conn}){
 let result = []

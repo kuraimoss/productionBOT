@@ -3,6 +3,7 @@ name: ["spotifydl","spdl"],
 param: "<url>",
 cmd: ["spotifydl","spdl"],
 category: "media",
+desc: "Download audio Spotify dari link track.",
 query: true,
 url: true,
 async handler(m, { conn, q, args }) {

@@ -2,6 +2,7 @@ module.exports = {
     name: "typodetect",
     function: true,
     typo: true,
+    desc: "Fungsi typo-detect: mendeteksi typo pada command dan memberi saran command yang benar.",
     async handler(m, { conn, isCreator, prefix, command }) {
         try {
             pe = await Object.values(attr.commands).filter(plugin => !plugin.disabled)

@@ -3,6 +3,7 @@ name: ["fbdl","facebook"],
 param: "<url>",
 cmd: ["fbdl","facebook"],
 category: "media",
+desc: "Download video Facebook dari link.",
 query: true,
 url: true,
 async handler(m, { conn, args, command }) {

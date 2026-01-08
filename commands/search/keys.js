@@ -3,7 +3,7 @@ name: ["keys"],
 param: "<url>",
 cmd: ["keys","key"],
 category: "search",
-desc: "Get Password File",
+desc: "Mengambil password file dari database berdasarkan URL yang diberikan.",
 query: true,
 async handler(m, {conn, args, prefix, command}){
 if (!YtIdRegex.test(args[0])) return m.reply(`Example : ${prefix + command} https://youtu.be/kRQk3lMReJQ?si=jUcPIn1m8CDuNHMt`)

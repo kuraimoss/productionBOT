@@ -10,7 +10,7 @@ module.exports = {
     param: "<query>",
     cmd: ["brat","bratvideo"],
     category: "tools",
-    desc: "Create a sticker",
+    desc: "Membuat stiker 'brat' dari teks (opsi: stiker video bertahap).",
     query: true,
     async handler(m, { conn, args, command, q, prefix }) {
         if (!q) return m.reply(`Contoh: ${prefix + command} hai`)

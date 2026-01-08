@@ -3,6 +3,7 @@ module.exports = {
     name: ['antispam_function'],
     antispam: true,
     function: true,
+    desc: "Fungsi antispam: memberi cooldown agar command tidak di-spam (±6 detik).",
     async handler(m, {conn, isCreator}){
         if(m.command && m.type != 'buttonsResponseMessage' ){
             if(m.from in conn.cooldown == false){

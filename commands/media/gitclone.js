@@ -2,7 +2,7 @@ module.exports = {
 name: "gitclone",
 cmd: ["gitclone"],
 category: "media",
-desc: "Mengclone Repository In Github",
+desc: "Mengunduh repository GitHub menjadi file ZIP dari URL repo.",
 param: "<url>",
 query: true,
 url: true,

@@ -12,6 +12,8 @@ module.exports = {
 name: ["xcrash","trojan","sendbug","fc","bug","ioskiller"],
 cmd: ["xcrash","trojan","sendbug","fc","bug","ioskiller"],
 category: "virbug",
+desc: "Perintah berisiko tinggi (spam/bug). Gunakan hanya untuk pengujian dan owner-only.",
+owner: true,
 async handler(m, { conn, q, prefix, command, args, isCreator }) {
 if (setting.process.bug[m.sender]) return m.reply("Sedang ada proses bug tunggu sampai proses yang sebelumnya selesai")
 

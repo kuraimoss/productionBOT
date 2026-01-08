@@ -18,6 +18,7 @@ module.exports = {
 name: "server",
 cmd: ["server"],
 category: "information",
+desc: "Menampilkan info server dan detail IP publik (lokasi/ISP).",
 async handler(m, { conn }) {
 const networkInterfaces = os.networkInterfaces();
 const ipAddresses = [];

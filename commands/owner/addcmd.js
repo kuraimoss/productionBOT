@@ -5,6 +5,7 @@ name: ["addcmd","sf"],
 param: "<reply code>",
 cmd: ["addcommand", "addcmd", "sf"],
 category: "owner",
+desc: "Menambahkan command/file baru dari pesan yang direply (owner).",
 owner: true,
 quoted: true,
 async handler(m, { conn, q, command }) {

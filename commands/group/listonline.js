@@ -2,7 +2,7 @@ module.exports = {
 name: "listonline",
 cmd: ["listonline", "listaktif"],
 category: "group",
-desc: "Get List Online",
+desc: "Menampilkan daftar member yang sedang online di grup.",
 group: true,
 async handler(m, { conn, args }) {
 let id = args && /\d+\-\d+@g.us/.test(args[0]) ? args[0] : m.from

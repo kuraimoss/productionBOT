@@ -2,7 +2,7 @@ module.exports = {
     name: ['unbanchat','unmute'],
     cmd: ['unbanchat', 'unmute'],
     category: 'group',
-    desc: 'mute chat in group',
+    desc: 'Unmute bot di grup ini (bot bisa merespons lagi).',
     group: true,
     admin: true,
     async handler(m, {conn}){

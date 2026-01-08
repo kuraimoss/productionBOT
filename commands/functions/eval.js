@@ -8,6 +8,7 @@ module.exports = {
 name: "eval",
 function: true,
 category: "owner",
+desc: "Fungsi owner: jalankan eval/exec (prefix >, <, =>, $) untuk debugging/administrasi.",
 async handler(m, { conn, chats, budy, body, prefix, args, command, isCreator, q, msg }) {
 //if (body.startsWith('> while')) return
 if (body.startsWith('>')) {

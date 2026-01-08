@@ -3,6 +3,7 @@ name: ["tiktokdl","ttdl"],
 param: "<url>",
 cmd: ["tiktokdl","ttdl"],
 category: "media",
+desc: "Download video TikTok dari link.",
 query: true,
 url: true,
 async handler(m, { conn, q, args }) {

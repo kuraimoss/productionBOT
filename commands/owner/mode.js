@@ -2,6 +2,7 @@ module.exports = {
 	name: "self/public",
 	cmd: ["self", "public"],
 	category: "owner",
+	desc: "Mengubah mode bot: self (hanya owner) atau public (semua pengguna).",
 	owner: true,
 	async handler(m, { conn }) {
 		if (m.command == "self") {

@@ -2,7 +2,7 @@ module.exports = {
 	name: "linkgroup",
 	cmd: ["linkgroup", "link"],
 	category: "group",
-	desc: "Get link group",
+	desc: "Menampilkan link undangan grup.",
 	group: true,
 	botadmin: true,
 	async handler(m, { conn }) {

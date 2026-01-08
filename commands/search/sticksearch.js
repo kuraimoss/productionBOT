@@ -3,7 +3,7 @@ name: 'stickersearch',
 param: '<query>',
 cmd: ['ssearch', 'sticksearch', 'stickersearch'],
 category: 'search',
-desc: 'Search for sticker',
+desc: 'Mencari sticker berdasarkan keyword dan menampilkan pilihan hasilnya.',
 query: true,
 async handler(m, {conn, text}){
 await m.reply(response.wait)

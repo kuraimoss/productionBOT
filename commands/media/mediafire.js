@@ -3,6 +3,7 @@ name: ["mediafire"],
 param: "<url>",
 cmd: ["mediafire"],
 category: "media",
+desc: "Download file MediaFire dari link (akan menolak jika ukuran terlalu besar).",
 query: true,
 url: true,
 async handler(m, { conn, q, command, args }) {

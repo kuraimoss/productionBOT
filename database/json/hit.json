@@ -19,5 +19,24 @@
     "total": 1,
     "success": 1,
     "failed": 0
+  },
+  "keys": {
+    "cmd": [
+      "keys"
+    ],
+    "timestamp": 1767829750896,
+    "total": 1,
+    "success": 1,
+    "failed": 0
+  },
+  "access,accesscmd": {
+    "cmd": [
+      "access",
+      "accesscmd"
+    ],
+    "timestamp": 1767841180815,
+    "total": 1,
+    "success": 1,
+    "failed": 0
   }
 }

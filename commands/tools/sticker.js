@@ -12,7 +12,7 @@ module.exports = {
     param: '<reply/send image>',
     cmd: ["sticker","s","stickerwm","swm"],
     category: "tools",
-    desc: "Create a sticker from image or video",
+    desc: "Membuat stiker dari gambar/video (opsional: set packname|author untuk watermark/exif).",
     async handler(m, {conn,text,isQSticker,isQImage,isMedia,isQVideo}){
         const {
             quoted,

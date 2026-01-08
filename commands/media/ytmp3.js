@@ -4,6 +4,7 @@ module.exports = {
     param: "<url>",
     cmd: ["ytmp3"],
     category: "media",
+    desc: "Download audio YouTube (MP3); bisa pilih bitrate dengan format `url|320`.",
     query: true,
     url: true,
     async handler(m, { conn, q, command }) {

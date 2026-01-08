@@ -5,6 +5,7 @@ name: "seticonbot",
 param: "<reply/image>",
 cmd: ["seticonbot","setppbot","changeprofilebot"],
 category: "owner",
+desc: "Mengubah foto profil bot dari gambar yang direply/dikirim (owner).",
 owner: true,
 spam: true,
 async handler(m, { conn, args, isMedia, isQImage }) {

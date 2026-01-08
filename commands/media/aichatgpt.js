@@ -5,6 +5,7 @@ name: ["ai","aichat","openai"],
 param: "<query>",
 cmd: ["ai","aichatgpt","aichat","openai"],
 category: "media",
+desc: "Chat AI lewat perintah; bisa kirim gambar untuk analisis, dan tambahkan kata 'voice' untuk balasan suara.",
 query: true,
 async handler(m, { conn, q, isImage, isQImage }) {
     const voiceCommandRegex = /(?:^|\s)voice(?:\s|$)/i;

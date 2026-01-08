@@ -4,7 +4,7 @@ module.exports = {
     param: '<query>',
     cmd: ['lirik', 'lyrics'],
     category: 'search',
-    desc: 'Search for song lyrics',
+    desc: 'Mencari lirik lagu berdasarkan judul/keyword.',
     query: true,
     async handler(m, {conn, text}){
         await m.reply(response.wait)

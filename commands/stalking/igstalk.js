@@ -3,6 +3,7 @@ name: ["instagramstalk","igstalk"],
 param: "<query>",
 cmd: ["instagramstalk","igstalk"],
 category: "stalking",
+desc: "Stalk profil Instagram (followers, bio, postingan, dll) berdasarkan username.",
 query: true,
 async handler(m, { conn, q, command }) {
 await m.reply(response.wait)

@@ -4,7 +4,7 @@ module.exports = {
 	param: "<reply audio>",
 	cmd: ["tomp3", "toaudio"],
 	category: "tools",
-	desc: "convert video to audio!",
+	desc: "Mengonversi video menjadi audio MP3.",
 	async handler(m, { conn, isQVideo, isMedia }) {
 		if ((isMedia && m.message.videoMessage) || isQVideo) {
 			await m.reply(response.wait);

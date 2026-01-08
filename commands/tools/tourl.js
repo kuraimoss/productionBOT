@@ -42,7 +42,7 @@ module.exports = {
     param: '<reply/send image/video>',
     cmd: ['tourl'],
     category: 'tools',
-    desc: 'upload media to telegraph',
+    desc: 'Upload media ke hosting (catbox/ugu) lalu kirim link-nya.',
     async handler(m, {conn}){
 let urlnya = await toUrl(m, conn)
 m.reply(urlnya)

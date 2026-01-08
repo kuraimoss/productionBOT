@@ -3,6 +3,7 @@ module.exports = {
   param: '<number/reply/mentions>',
   cmd: ['block','unblock'],
   category: 'owner',
+  desc: "Blokir atau buka blokir user (owner).",
   owner: true,
   async handler(m, {conn, args}){
     const action = m.command == 'block' ? 'block' : 'unblock'

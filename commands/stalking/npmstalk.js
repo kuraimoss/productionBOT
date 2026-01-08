@@ -3,6 +3,7 @@ name: ["npmstalk"],
 param: "<query>",
 cmd: ["npmstalk"],
 category: "stalking",
+desc: "Stalk info package NPM (author, versi, repo, deskripsi, dll).",
 query: true,
 async handler(m, { conn, q, command }) {
 await m.reply(response.wait)

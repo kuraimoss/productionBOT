@@ -5,6 +5,7 @@ name: 'bc',
 param: '<text/reply>',
 cmd: ['bc','bcset'],
 category: 'owner',
+desc: "Broadcast pesan ke semua grup (normal/hidetag/fakereply) (owner).",
 owner: true,
 quoted: "Reply to the message you want to broadcast",
 async handler(m, {conn, command, q}){

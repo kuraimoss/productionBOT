@@ -4,6 +4,7 @@ name: "hd",
 param: "<reply/send image>",
 cmd: ["hd","sharp","tohd"],
 category: "tools",
+desc: "Meningkatkan kualitas/ketajaman gambar (HD/sharpen/upscale).",
 async handler(m, { conn, args, isQImage, isImage }) {
 if (isQImage || isImage) {
 await m.reply(response.wait)

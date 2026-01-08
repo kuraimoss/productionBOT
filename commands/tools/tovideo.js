@@ -6,7 +6,7 @@ module.exports = {
 	param: "<reply sticker>",
 	cmd: ["tovideo"],
 	category: "tools",
-	desc: "Change sticker to video",
+	desc: "Mengubah stiker animasi menjadi video.",
 	quoted: { sticker: true },
 	async handler(m, { conn }) {
 		await require("./toimg").handler(m, { conn });

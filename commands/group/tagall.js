@@ -2,7 +2,7 @@ module.exports = {
     name: 'tagall',
     cmd: ['tagall'],
     category: 'group',
-    desc: 'Tag All member group',
+    desc: 'Mention semua member di grup (opsional: tambahkan pesan).',
     group: true,
     admin: true,
     async handler(m, {text}){

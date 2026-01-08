@@ -508,6 +508,7 @@ Assistant: Oke, santai aja! 😄 Jadi, apa yang mau kamu tanya atau bahas? Aku d
 module.exports = {
     name: "aichat",
     category: "media",
+    desc: "Fungsi AI dual-mode: deteksi intent command dulu, kalau tidak ada baru balas sebagai chat AI.",
     function: true,
     async handler(m, { conn, command }) {
     if (!command) {

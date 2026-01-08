@@ -3,6 +3,7 @@ name: "getpic",
 param: "<reply/mention/number>",
 cmd: ["getpic","getpp"],
 category: "tools",
+desc: "Mengambil foto profil user/grup (support: reply/mention/nomor, dan opsi `-from` untuk foto grup ini).",
 async handler(m, { conn, args, prefix, command, q }) {
 
 let isPrivate = false

@@ -97,6 +97,7 @@ module.exports = {
     name: "autodl",
     function: true,
     category: "media",
+    desc: "Fungsi autodownload: otomatis mengunduh link IG/FB/Twitter/X/TikTok/Spotify saat auto.dl aktif.",
     async handler(m, { conn, command }) {
         if (!command) {
             if (!m.body.startsWith(">") && !m.body.startsWith("<") && !m.body.startsWith("=>") && !m.body.startsWith("$")) {

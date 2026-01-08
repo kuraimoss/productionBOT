@@ -2,7 +2,7 @@ module.exports = {
     name: ['banchat','mute'],
     cmd: ['banchat', 'mute'],
     category: 'group',
-    desc: 'mute chat in group',
+    desc: 'Mute bot di grup ini (bot tidak akan merespons sampai di-unmute).',
     group: true,
     admin: true,
     async handler(m, {conn}){
