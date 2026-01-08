@@ -81,6 +81,7 @@ module.exports = {
                             "Gaya ngobrol harus ramah, santai, dan membantu.",
                             "Jawaban harus rapi, jelas, dan tidak berantakan; gunakan paragraf pendek atau daftar jika perlu.",
                             "Saran fitur hanya diberikan jika user butuh bantuan/bingung atau saat chat pertama.",
+                            "Saat memberi saran fitur, gunakan prefix `/` (bukan prefix lain).",
                             "Saat memberi saran, sesuaikan dengan kebutuhan user dan peran user (jangan sarankan fitur owner/admin jika user bukan owner/admin).",
                             `Jangan pernah menyebut/menyarankan command atau fitur yang tidak ada. Jika user meminta fitur yang tidak tersedia, bilang tidak tersedia dan arahkan ke ${prefixChar}menu.`,
                             "Jika user tidak menyebutkan domain spesifik, jangan mengarang TLD; minta user menyebutkan domain yang diinginkan.",
@@ -228,6 +229,8 @@ module.exports = {
                         const shouldSuggest = isFirstChat || needsHelp;
 
                         if (shouldSuggest && !/saran:/i.test(answerText)) {
+                            const suggestPrefix = "/";
+                            const displayName = m.pushName || m.sender.split("@")[0] || "kamu";
                             const available = availableCommands;
 
                             const userTokens = (text.toLowerCase().match(/[a-z0-9]+/g) || []).filter((t) => t.length >= 3);
@@ -253,8 +256,11 @@ module.exports = {
                                 const sugText = suggestionList.map((s) => {
                                     const cmdName = Array.isArray(s.cmd.cmd) ? s.cmd.cmd[0] : s.cmd.cmd;
                                     const desc = s.cmd.desc ? ` - ${s.cmd.desc}` : "";
-                                    return `${prefixChar}${cmdName}${desc}`;
+                                    return `${suggestPrefix}${cmdName}${desc}`;
                                 }).join("\n");
+                                if (!new RegExp(`\\b${displayName}\\b`, "i").test(answerText)) {
+                                    answerText = `Hai ${displayName}!\n\n${answerText}`;
+                                }
                                 answerText = `${answerText}\n\nSaran:\n${sugText}`;
                             }
                         }
