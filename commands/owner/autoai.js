@@ -30,9 +30,15 @@ module.exports = {
             users[target].auto = { ai: true, dl: true };
         }
 
-        users[target].auto.ai = action === "on";
+        const desired = action === "on";
+        const current = Boolean(users[target].auto.ai);
+        if (current === desired) {
+            return m.reply(`Auto AI untuk chat ini sudah ${desired ? "aktif" : "nonaktif"} sebelumnya.`);
+        }
+
+        users[target].auto.ai = desired;
         fs.writeFileSync("./database/json/user.json", JSON.stringify(users, null, 2));
 
-        m.reply(`Auto AI untuk chat ini sekarang ${action === "on" ? "aktif" : "nonaktif"}.`);
+        m.reply(`Auto AI untuk chat ini sekarang ${desired ? "aktif" : "nonaktif"}.`);
     },
 };
