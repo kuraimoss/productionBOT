@@ -1,4 +1,5 @@
 const { sticker } = require("../../lib/convert");
+const { fromBuffer } = require("file-type");
 const moment = require("moment-timezone");
 
 module.exports = {
@@ -22,18 +23,37 @@ module.exports = {
             packname: setting.packInfo.packname,
             author: getPackAuthor(conn) + `+${m.sender.split("@")[0]}\n ƒ-, d?--d?-¨d?-ýd?-rd?~?d?-ýd?-ñ : ${thund} ${wktud}`,
         };
-        try {
-            const url = `https://api.xteam.xyz/attp?file&text=${encodeURIComponent(input)}`;
-            const buffer = await tool.getBuffer(url);
-            const stickerBuff = await sticker(buffer, {
-                isImage: true,
-                withPackInfo: true,
-                packInfo,
-                cmdType: "1",
-            });
-            await conn.sendMessage(m.from, { sticker: stickerBuff }, { quoted: m });
-        } catch (e) {
-            await m.reply("Gagal membuat stiker ATTP.");
+        const endpoints = [
+            (q) => `https://api.xteam.xyz/attp?file&text=${encodeURIComponent(q)}`,
+            (q) => `https://api.akuari.my.id/sticker/attp?text=${encodeURIComponent(q)}`,
+        ];
+        let lastErr = null;
+        for (const makeUrl of endpoints) {
+            try {
+                const url = makeUrl(input);
+                let buffer = await tool.getBuffer(url);
+                const type = await fromBuffer(buffer);
+                if (!type || !/image|gif|webp/.test(type.mime)) {
+                    try {
+                        const json = JSON.parse(buffer.toString("utf-8"));
+                        const nextUrl = json?.result || json?.url;
+                        if (nextUrl) {
+                            buffer = await tool.getBuffer(nextUrl);
+                        }
+                    } catch {}
+                }
+                const stickerBuff = await sticker(buffer, {
+                    isImage: true,
+                    withPackInfo: true,
+                    packInfo,
+                    cmdType: "1",
+                });
+                await conn.sendMessage(m.from, { sticker: stickerBuff }, { quoted: m });
+                return;
+            } catch (e) {
+                lastErr = e;
+            }
         }
+        await m.reply("Gagal membuat stiker ATTP. Coba lagi nanti.");
     },
 };
