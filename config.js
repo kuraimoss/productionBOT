@@ -100,7 +100,7 @@ global.setting = {
     blackbox: {
         key: "sk-8maoG5ArzH6ufO_aUY5pzg",
         model: "blackboxai/openai/gpt-5.1",
-        imageModel: "blackboxai/black-forest-labs/flux-1.1-pro-ultra",
+        imageModel: "blackboxai/black-forest-labs/flux-pro",
         videoModel: "blackboxai/google/veo-3"
     },
     elevenlabs: {
