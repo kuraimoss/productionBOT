@@ -19,13 +19,17 @@ module.exports = {
             }
             
             if (isiPesan.length != 0) {
+                const botNumber = typeof getBotNumber === "function" ? getBotNumber(conn) : "";
+                const botJid = botNumber ? `${botNumber}@s.whatsapp.net` : "";
+                if (botJid && m.sender === botJid) return;
                 let isAi = false
                 let msgId = false
 
                 if (!isiPesan.startsWith(">") && !isiPesan.startsWith("<") && !isiPesan.startsWith("=>") && !isiPesan.startsWith("$")) {
                     if (m.quoted && m.quoted.key.fromMe) msgId = m.quoted.key.id
                     if (msgId && msgId.startsWith("AICHAT")) isAi = true
-                    if (!m.isGroup && users[m.sender].auto && users[m.sender].auto.ai && (tool.isUrl(isiPesan) ? !users[m.sender].auto.dl : true)) isAi = true
+                    const chatAuto = users[m.from] || users[m.sender] || {};
+                    if (!m.isGroup && chatAuto.auto && chatAuto.auto.ai && (tool.isUrl(isiPesan) ? !chatAuto.auto.dl : true)) isAi = true
 
                     if (isAi) {
                         const voiceCommandRegex = /(?:^|\s)voice(?:\s|$)/i;
