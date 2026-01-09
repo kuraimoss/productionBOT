@@ -205,11 +205,46 @@ module.exports = {
                                 .replace(/\bapi\.menu\.menu\b/gi, "api.whatsapp.com");
                         };
                         answerText = normalizeWhatsappLinks(answerText);
+                        const normalizeSocialLinks = (inputText) => {
+                            if (!inputText) return inputText;
+                            let output = String(inputText);
+                            const fixes = [
+                                ["instagram", "instagram.com"],
+                                ["facebook", "facebook.com"],
+                                ["fb", "fb.com"],
+                                ["tiktok", "tiktok.com"],
+                                ["youtube", "youtube.com"],
+                                ["youtu", "youtu.be"],
+                                ["twitter", "twitter.com"],
+                                ["x", "x.com"],
+                                ["github", "github.com"],
+                                ["telegram", "telegram.org"],
+                                ["t.me", "t.me"],
+                                ["whatsapp", "whatsapp.com"],
+                                ["api.whatsapp", "api.whatsapp.com"],
+                                ["wa.me", "wa.me"],
+                                ["spotify", "spotify.com"],
+                                ["soundcloud", "soundcloud.com"],
+                                ["linkedin", "linkedin.com"],
+                                ["discord", "discord.com"],
+                                ["discord.gg", "discord.gg"],
+                                ["reddit", "reddit.com"],
+                                ["pinterest", "pinterest.com"],
+                                ["line", "line.me"],
+                                ["snapchat", "snapchat.com"],
+                                ["twitch", "twitch.tv"],
+                            ];
+                            for (const [bad, good] of fixes) {
+                                const re = new RegExp(`https?:\\/\\/${bad}\\b`, "gi");
+                                output = output.replace(re, `https://${good}`);
+                            }
+                            return output
+                                .replace(/https?:\/\/instagram\/([a-z0-9._-]+)/gi, "https://instagram.com/$1")
+                                .replace(/https?:\/\/github\/([a-z0-9._-]+)/gi, "https://github.com/$1");
+                        };
+                        answerText = normalizeSocialLinks(answerText);
                         if (!/\.menu\b/i.test(text) && /\.menu\b/i.test(answerText)) {
                             answerText = String(answerText).replace(/\.menu\b/gi, "");
-                            if (!/domain/i.test(answerText)) {
-                                answerText = `${answerText}\n\nAku tidak yakin domain yang benar. Sebutkan domain yang kamu mau, ya.`;
-                            }
                         }
                         if (medsos?.email) {
                             const parts = String(medsos.email).split("@");
