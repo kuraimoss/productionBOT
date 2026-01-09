@@ -15,7 +15,7 @@ async function generateImageFromPrompt(prompt) {
         stream: false,
     };
 
-    const res = await axios.post("https://api.blackbox.ai/chat/completions", payload, {
+    const res = await axios.post("https://api.blackbox.ai/v1/images/generations", payload, {
         headers: {
             Authorization: `Bearer ${apiKey}`,
             "Content-Type": "application/json",
