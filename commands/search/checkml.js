@@ -4,7 +4,7 @@ module.exports = {
     name: "checkml",
     param: "<id>|<zone>",
     cmd: ["checkml", "cekml", "mlid"],
-    category: "tools",
+    category: "search",
     desc: "Cek nickname Mobile Legends berdasarkan ID dan Zone.",
     query: true,
     async handler(m, { text, prefix, command }) {
@@ -47,9 +47,19 @@ module.exports = {
             );
             const nick = data?.confirmationFields?.roles?.[0]?.role;
             if (!nick) {
-                const msg = data?.errorMsg || data?.errorCode;
+                const errorCode = data?.errorCode ?? data?.RESULT_CODE;
+                const errorMsg = data?.errorMsg || data?.errorMessage || data?.message;
+                const rawMsg = errorMsg || errorCode;
+                if (
+                    errorCode === 1516 ||
+                    (typeof errorMsg === "string" && /IAPControlLimit/i.test(errorMsg))
+                ) {
+                    return m.reply(
+                        `Tidak bisa cek nickname karena akun ML sedang terkena IAP Control Limit.\nID: ${id}\nZone: ${zone}`
+                    );
+                }
                 return m.reply(
-                    `ID/Zone tidak ditemukan atau sedang error.${msg ? `\n(${msg})` : ""}`
+                    `ID/Zone tidak ditemukan atau sedang error.${rawMsg ? `\n(${rawMsg})` : ""}`
                 );
             }
             return m.reply(`Nickname ML: ${nick}\nID: ${id}\nZone: ${zone}`);

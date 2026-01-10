@@ -4,7 +4,7 @@ module.exports = {
     name: "checkff",
     param: "<id>",
     cmd: ["checkff", "cekff", "ffid"],
-    category: "tools",
+    category: "search",
     desc: "Cek nickname Free Fire berdasarkan ID.",
     query: true,
     async handler(m, { text, prefix, command }) {
@@ -43,7 +43,7 @@ module.exports = {
             );
             const nick = data?.confirmationFields?.roles?.[0]?.role;
             if (!nick) return m.reply("ID tidak ditemukan atau sedang error.");
-            return m.reply(`Nickname FF: ${nick}\nID: ${id}`);
+            return m.reply(`Nickname Free Fire: ${nick}\nID: ${id}`);
         } catch (e) {
             return m.reply("Gagal cek ID FF. Coba lagi nanti.");
         }
