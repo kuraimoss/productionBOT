@@ -43,3 +43,7 @@ build/
 .next/
 .nuxt/
 coverage/
+
+# Temp (keep folder, ignore contents)
+temp/*
+!temp/.gitkeep

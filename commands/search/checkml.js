@@ -1,4 +1,5 @@
 const axios = require("axios");
+const { randomUUID } = require("crypto");
 
 module.exports = {
     name: "checkml",
@@ -16,52 +17,27 @@ module.exports = {
             return m.reply(`Example : ${prefix + command} 123456789|1234`);
         }
         try {
-            const body = {
-                "voucherPricePoint.id": 6000,
-                "voucherPricePoint.price": "",
-                "voucherPricePoint.variablePrice": "",
-                n: "",
-                email: "",
-                userVariablePrice: "",
-                "order.data.profile": "",
-                "user.userId": id,
-                "user.zoneId": zone,
-                voucherTypeName: "MOBILE_LEGENDS",
-                affiliateTrackingId: "",
-                impactClickId: "",
-                checkoutId: "",
-                tmwAccessToken: "",
-                shopLang: "in_ID",
-            };
             const { data } = await axios.post(
-                "https://order-sg.codashop.com/id/validateProfile.action",
-                body,
+                "https://order-sg.codashop.com/validate",
+                {
+                    country: "ID",
+                    voucherTypeName: "MOBILE_LEGENDS",
+                    whiteLabelId: "0",
+                    deviceId: randomUUID(),
+                    userId: id,
+                    zoneId: zone,
+                },
                 {
                     headers: {
-                        "Content-Type": "application/json; charset=utf-8",
+                        "Content-Type": "application/json",
                         "User-Agent":
                             "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
                         Accept: "application/json",
                     },
                 }
             );
-            const nick = data?.confirmationFields?.roles?.[0]?.role;
-            if (!nick) {
-                const errorCode = data?.errorCode ?? data?.RESULT_CODE;
-                const errorMsg = data?.errorMsg || data?.errorMessage || data?.message;
-                const rawMsg = errorMsg || errorCode;
-                if (
-                    errorCode === 1516 ||
-                    (typeof errorMsg === "string" && /IAPControlLimit/i.test(errorMsg))
-                ) {
-                    return m.reply(
-                        `Tidak bisa cek nickname karena akun ML sedang terkena IAP Control Limit.\nID: ${id}\nZone: ${zone}`
-                    );
-                }
-                return m.reply(
-                    `ID/Zone tidak ditemukan atau sedang error.${rawMsg ? `\n(${rawMsg})` : ""}`
-                );
-            }
+            const nick = data?.result?.username;
+            if (!nick) return m.reply("ID/Zone tidak ditemukan atau sedang error.");
             return m.reply(`Nickname ML: ${nick}\nID: ${id}\nZone: ${zone}`);
         } catch (e) {
             return m.reply("Gagal cek ID ML. Coba lagi nanti.");
