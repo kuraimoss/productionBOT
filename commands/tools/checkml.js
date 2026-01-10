@@ -16,29 +16,42 @@ module.exports = {
             return m.reply(`Example : ${prefix + command} 123456789|1234`);
         }
         try {
-            const params = new URLSearchParams({
-                productId: "1",
-                itemId: "2",
-                catalogId: "57",
-                paymentId: "352",
-                gameId: id,
-                zoneId: zone,
-                product_ref: "REG",
-                product_ref_denom: "AE",
-            });
+            const body = {
+                "voucherPricePoint.id": 6000,
+                "voucherPricePoint.price": "",
+                "voucherPricePoint.variablePrice": "",
+                n: "",
+                email: "",
+                userVariablePrice: "",
+                "order.data.profile": "",
+                "user.userId": id,
+                "user.zoneId": zone,
+                voucherTypeName: "MOBILE_LEGENDS",
+                affiliateTrackingId: "",
+                impactClickId: "",
+                checkoutId: "",
+                tmwAccessToken: "",
+                shopLang: "in_ID",
+            };
             const { data } = await axios.post(
-                "https://api.duniagames.co.id/api/transaction/v1/top-up/inquiry/store",
-                params,
+                "https://order-sg.codashop.com/id/validateProfile.action",
+                body,
                 {
                     headers: {
-                        "Content-Type": "application/x-www-form-urlencoded",
-                        Referer: "https://www.duniagames.co.id/",
+                        "Content-Type": "application/json; charset=utf-8",
+                        "User-Agent":
+                            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
                         Accept: "application/json",
                     },
                 }
             );
-            const nick = data?.data?.gameDetail?.userName || data?.data?.gameDetail?.username;
-            if (!nick) return m.reply("ID/Zone tidak ditemukan atau sedang error.");
+            const nick = data?.confirmationFields?.roles?.[0]?.role;
+            if (!nick) {
+                const msg = data?.errorMsg || data?.errorCode;
+                return m.reply(
+                    `ID/Zone tidak ditemukan atau sedang error.${msg ? `\n(${msg})` : ""}`
+                );
+            }
             return m.reply(`Nickname ML: ${nick}\nID: ${id}\nZone: ${zone}`);
         } catch (e) {
             return m.reply("Gagal cek ID ML. Coba lagi nanti.");
