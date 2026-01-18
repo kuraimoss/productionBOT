@@ -5,7 +5,7 @@
     "main": "index.js",
     "scripts": {
         "start": "node index.js",
-        "postinstall": "patch-package --silent || true && node -e \"const fs=require('fs');const p='node_modules/@zackmans/baileys/lib/index.js';if(fs.existsSync(p)){let t=fs.readFileSync(p,'utf8');let lines=t.split(/\\\\r?\\\\n/).filter(l=>!(l.includes('Modified Baileys')||l.includes('modified Baileys')||l.includes('@zckmans')||l.includes('thank you for using my modified Baileys')||l.includes('------------------------------')||l.includes('import chalk')));fs.writeFileSync(p,lines.join('\\\\n'),'utf8');}\""
+        "postinstall": "patch-package --silent || true && node -e \"const fs=require('fs');const path=require('path');const root='node_modules/@zackmans/baileys';if(!fs.existsSync(root))process.exit(0);const patterns=['Modified Baileys','modified Baileys','@zckmans','thank you for using my modified Baileys','------------------------------','import chalk'];const walk=(dir)=>{for(const e of fs.readdirSync(dir,{withFileTypes:true})){const p=path.join(dir,e.name);if(e.isDirectory())walk(p);else if(e.isFile()&&(p.endsWith('.js')||p.endsWith('.cjs')||p.endsWith('.mjs'))){let t=fs.readFileSync(p,'utf8');let lines=t.split(/\\\\r?\\\\n/);let filtered=lines.filter(l=>!patterns.some(s=>l.includes(s)));if(filtered.length!==lines.length)fs.writeFileSync(p,filtered.join('\\\\n'),'utf8');}}};walk(root);\""
     },
     "author": "kuraimos",
     "license": "MIT",
