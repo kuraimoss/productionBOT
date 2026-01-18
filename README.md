@@ -1,16 +1,16 @@
-# kuraBOT
+# productionBOT
 
-Bot WhatsApp multi-device berbasis Baileys dengan fitur AI, downloader media, tools, dan utilitas grup.
+Bot WhatsApp multi-device berbasis Baileys dengan struktur command modular dan logging konsol yang rapi.
 
 ## Lisensi
-MIT — lihat `LICENSE`.
+MIT. Lihat `LICENSE`.
 
 ## Fitur Utama
-- Menu & bantuan per kategori (`.menu`, `.help`)
-- AI chat (auto/interactive) + text-to-image (Blackbox)
-- Downloader (IG/FB/Twitter/X/TikTok/YouTube/Spotify/MediaFire/Git clone, dll)
-- Tools: sticker, toimg/tovideo/tomp3, ssweb (screenshot web), iplookup, dll
-- Fitur grup: promote/demote/kick/hidetag/link/revoke/mute, dll
+- Sistem command modular (autoload + hot-reload) dari folder `commands/`
+- Command owner yang tersedia: `broadcast`, `listgroup`
+- Pencatatan error + notifikasi ke owner
+- Penyimpanan sesi di folder `session/`
+- Patch dependency via `patch-package` (lihat `patches/`)
 
 ## Requirements
 - Node.js >= 20
@@ -27,11 +27,10 @@ npm install
 ## Konfigurasi
 Edit `config.js` sesuai kebutuhan:
 - `global.owner` (WA owner)
-- `setting.*` (prefix, mode self/public, API keys, dll)
-- `setting.blackbox.*` (model chat/image/video)
-- `setting.group.id` dan `setting.saluran.id` (opsional)
+- `global.botName`
+- `setting.*` (prefix, mode self/public, auto read, dll)
 
-Catatan: jangan share file config yang berisi API key.
+Catatan: jangan bagikan file config yang berisi data sensitif.
 
 ## Menjalankan Bot
 ```bash
@@ -40,18 +39,21 @@ npm start
 node index.js
 ```
 
-Saat pertama kali login, bisa pakai QR di terminal:
+QR di terminal:
 ```bash
 node index.js --qr
 ```
 
-Session akan tersimpan di folder `session/`.
+Mode mobile:
+```bash
+node index.js --mobile
+```
 
 ## Struktur Project (ringkas)
-- `main.js` : koneksi WhatsApp + watcher hot-reload command
-- `lib/handler.js` : router command + middleware
-- `commands/` : semua command berdasarkan kategori
-- `lib/scraper/` : modul scraper & AI client
-
-## Catatan Developer
-- Project memakai `patch-package` untuk patch dependency agar perubahan tetap berlaku setelah reinstall.
+- `index.js` : entry point
+- `main.js` : koneksi WhatsApp + event + watcher command
+- `commands/` : command per kategori (owner/other)
+- `lib/` : helper & serializer
+- `database/` : data JSON
+- `session/` : data sesi
+- `patches/` : patch untuk dependency
