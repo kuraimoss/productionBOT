@@ -1,1 +1,23 @@
-{}
+{
+  "test": {
+    "cmd": "test",
+    "timestamp": 1768227136277,
+    "total": 11,
+    "success": 10,
+    "failed": 1
+  },
+  "listgroup": {
+    "cmd": "listgroup",
+    "timestamp": 1768227238168,
+    "total": 2,
+    "success": 2,
+    "failed": 0
+  },
+  "broadcast": {
+    "cmd": "broadcast",
+    "timestamp": 1768227742349,
+    "total": 7,
+    "success": 7,
+    "failed": 0
+  }
+}
